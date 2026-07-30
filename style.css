@@ -84,14 +84,18 @@ img {
 /* ==========================================================================
    1. Announcement Bar & Top Navigation
    ========================================================================== */
+/* ==========================================================================
+   1. Announcement Bar & Luxury Header Navigation
+   ========================================================================== */
 .announcement-bar {
   background: var(--primary-emerald);
   color: var(--gold-accent);
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 8px 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 9px 0;
   text-align: center;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  letter-spacing: 0.3px;
 }
 
 .announcement-bar .container {
@@ -107,87 +111,103 @@ img {
 }
 
 .currency-btn {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   font-size: 0.75rem;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 3px 8px;
+  border-radius: 4px;
   transition: all var(--transition-fast);
 }
 
 .currency-btn.active {
-  color: var(--gold-accent);
+  color: var(--gold-primary);
   font-weight: 700;
-  background: rgba(212, 175, 55, 0.15);
+  background: var(--rose-blush);
+  border: 1px solid var(--border-light);
 }
 
-/* Header & Navbar */
+/* Luxury Sticky Header */
 .header {
   position: sticky;
   top: 0;
   z-index: 1000;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-light);
-  transition: all var(--transition-fast);
+  box-shadow: 0 4px 20px rgba(92, 34, 52, 0.05);
+  transition: all var(--transition-normal);
 }
 
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 14px 0;
 }
 
+/* Royal Boutique Crest Logo */
 .logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.logo-brand {
   font-family: var(--font-serif);
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--primary-emerald);
   letter-spacing: -0.5px;
+  position: relative;
 }
 
-.logo span {
+.logo-tagline {
+  font-size: 0.65rem;
+  font-weight: 700;
   color: var(--gold-primary);
-  font-style: italic;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-top: 1px;
 }
 
+/* Nav Menu Links */
 .nav-menu {
   display: flex;
-  gap: 28px;
+  gap: 10px;
   list-style: none;
+  align-items: center;
 }
 
 .nav-link {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.88rem;
+  font-weight: 600;
   color: var(--dark-charcoal);
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all var(--transition-fast);
   position: relative;
-  padding: 4px 0;
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--gold-primary);
-  transition: width var(--transition-fast);
+.nav-link:hover {
+  color: var(--primary-emerald);
+  background: var(--rose-blush);
 }
 
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 100%;
+.nav-link.active {
+  color: var(--primary-emerald);
+  background: var(--rose-blush);
+  border: 1px solid var(--border-light);
+  font-weight: 700;
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 }
 
+/* Luxury Capsule Search Bar */
 .search-box {
   position: relative;
   display: flex;
@@ -195,55 +215,71 @@ img {
 }
 
 .search-input {
-  padding: 8px 14px 8px 36px;
-  border-radius: 20px;
+  padding: 9px 16px 9px 38px;
+  border-radius: 25px;
   border: 1px solid var(--border-light);
   background: var(--white);
   font-size: 0.85rem;
-  width: 180px;
-  transition: width var(--transition-normal), border-color var(--transition-fast);
+  width: 190px;
+  color: var(--dark-charcoal);
+  transition: width var(--transition-normal), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .search-input:focus {
   outline: none;
-  width: 230px;
+  width: 240px;
   border-color: var(--gold-primary);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
-  color: var(--text-muted);
+  left: 14px;
+  color: var(--gold-primary);
   font-size: 0.9rem;
   pointer-events: none;
 }
 
+/* Floating Action Badges (Wishlist & Shopping Bag) */
 .action-icon-btn {
   position: relative;
-  font-size: 1.25rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid var(--border-light);
   color: var(--primary-emerald);
-  padding: 6px;
-  transition: transform var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all var(--transition-fast);
 }
 
 .action-icon-btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.2);
 }
 
 .badge {
   position: absolute;
-  top: 0px;
+  top: -2px;
   right: -2px;
   background: var(--gold-primary);
   color: var(--primary-emerald);
   font-size: 0.65rem;
-  font-weight: 700;
-  width: 18px;
-  height: 18px;
+  font-weight: 800;
+  width: 19px;
+  height: 19px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid var(--white);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
 .mobile-toggle {
