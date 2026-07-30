@@ -336,8 +336,8 @@
         <div class="footer-col">
           <h4>Quick Links</h4>
           <ul class="footer-links">
-            <li><a href="#">Home</a></li>
-            <li><a href="#collections">New Arrivals</a></li>
+            <li><a href="javascript:void(0)" onclick="filterCategory('all'); window.scrollTo({top:0, behavior:'smooth'});">Home</a></li>
+            <li><a href="javascript:void(0)" onclick="filterCategory('all'); const s=document.getElementById('collections'); if(s)s.scrollIntoView({behavior:'smooth'});">New Arrivals</a></li>
             <li><a href="javascript:void(0)" onclick="openTrackModal()">Track Order</a></li>
             <li><a href="admin.html" target="_blank">Admin Portal</a></li>
           </ul>
@@ -355,10 +355,10 @@
           <h4>Connect With Us</h4>
           <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 12px;">Follow us for latest catalog launches:</p>
           <div style="display: flex; gap: 12px; font-size: 1.3rem;">
-            <a href="#" style="color: var(--gold-accent);"><i class="fa-brands fa-instagram"></i></a>
-            <a href="#" style="color: var(--gold-accent);"><i class="fa-brands fa-facebook"></i></a>
-            <a href="#" style="color: var(--gold-accent);"><i class="fa-brands fa-pinterest"></i></a>
-            <a href="https://wa.me/923038873030" target="_blank" style="color: var(--gold-accent);"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="javascript:void(0)" onclick="showToast('Instagram: @SamrinaBoutiqueOfficial')" style="color: var(--gold-accent);" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="javascript:void(0)" onclick="showToast('Facebook: Samrina Boutique Official')" style="color: var(--gold-accent);" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            <a href="javascript:void(0)" onclick="showToast('Pinterest: Samrina Boutique Couture')" style="color: var(--gold-accent);" title="Pinterest"><i class="fa-brands fa-pinterest"></i></a>
+            <a href="https://wa.me/923038873030" target="_blank" style="color: var(--gold-accent);" title="WhatsApp Direct Helpline"><i class="fa-brands fa-whatsapp"></i></a>
           </div>
         </div>
       </div>
