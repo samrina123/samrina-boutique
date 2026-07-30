@@ -404,9 +404,9 @@
   </div>
 
   <!-- Size Guide Modal -->
-  <div class="modal-overlay" id="sizeGuideModal">
+  <div class="modal-overlay" id="sizeGuideModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="modal-card" style="max-width: 600px;">
-      <button class="modal-close" onclick="closeSizeGuideModal()">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('sizeGuideModal').classList.remove('active')">&times;</button>
       <div style="text-align: center; margin-bottom: 20px;">
         <span style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-tape"></i> Official Sizing Standard</span>
         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary-emerald); margin-top: 4px;">Pakistani Couture Size Guide</h3>
@@ -441,9 +441,9 @@
   </div>
 
   <!-- Shipping Policy Modal -->
-  <div class="modal-overlay" id="shippingModal">
+  <div class="modal-overlay" id="shippingModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="modal-card" style="max-width: 550px;">
-      <button class="modal-close" onclick="closeShippingModal()">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('shippingModal').classList.remove('active')">&times;</button>
       <div style="text-align: center; margin-bottom: 20px;">
         <span style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-truck-fast"></i> Worldwide Delivery</span>
         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary-emerald); margin-top: 4px;">Shipping & Stitching Policy</h3>
@@ -476,9 +476,9 @@
   </div>
 
   <!-- Contact Us Modal -->
-  <div class="modal-overlay" id="contactModal">
+  <div class="modal-overlay" id="contactModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="modal-card" style="max-width: 500px;">
-      <button class="modal-close" onclick="closeContactModal()">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('active')">&times;</button>
       <div style="text-align: center; margin-bottom: 20px;">
         <span style="color: var(--gold-primary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;"><i class="fa-solid fa-headset"></i> Get In Touch</span>
         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary-emerald); margin-top: 4px;">Contact Samrina Boutique</h3>
@@ -511,6 +511,6 @@
   </div>
 
   <!-- Custom Script with Cache Bashing -->
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
