@@ -135,7 +135,7 @@ function renderProductsGrid(products) {
         <span class="product-tag">${p.stock_status || 'EXCLUSIVE'}</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
         <button class="wishlist-btn" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></button>
-        <img src="${p.image_url}" alt="${p.title}" onerror="this.src='images/emerald_gown.jpg'">
+        <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
         <div class="product-rating">
@@ -210,7 +210,7 @@ function renderSimilarProducts(displayedProducts, category, search) {
         <span class="product-tag" style="background:var(--gold-primary); color:var(--primary-emerald);">SIMILAR ITEM</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
         <button class="wishlist-btn" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></button>
-        <img src="${p.image_url}" alt="${p.title}" onerror="this.src='images/emerald_gown.jpg'">
+        <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
         <div class="product-rating">
@@ -234,6 +234,41 @@ function renderSimilarProducts(displayedProducts, category, search) {
   });
 
   simSec.style.display = 'block';
+}
+
+// 3c. Smart Image Fallback Handler for GitHub Pages
+function handleImageError(img, category) {
+  const cdnFallbacks = {
+    'saree': 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80',
+    'shalwar': 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=600&q=80',
+    'casual': 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80',
+    'pret': 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80',
+    'formal': 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=600&q=80',
+    'bridal': 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80'
+  };
+
+  // 1. Try stripping 'images/' prefix if uploaded directly to root on GitHub
+  if (!img.dataset.triedRoot) {
+    img.dataset.triedRoot = 'true';
+    const rawSrc = img.getAttribute('src') || '';
+    if (rawSrc.startsWith('images/')) {
+      img.src = rawSrc.replace('images/', '');
+      return;
+    }
+  }
+
+  // 2. Try relative ./ path
+  if (!img.dataset.triedRelative) {
+    img.dataset.triedRelative = 'true';
+    const currentSrc = img.getAttribute('src') || '';
+    if (!currentSrc.startsWith('./')) {
+      img.src = './' + currentSrc;
+      return;
+    }
+  }
+
+  // 3. Instant Category High-Res CDN Fallback so pictures NEVER break on GitHub Pages
+  img.src = cdnFallbacks[category] || cdnFallbacks['formal'];
 }
 
 // 4. Currency Switcher Logic (PKR <-> USD)
