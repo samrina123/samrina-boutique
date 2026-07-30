@@ -329,52 +329,44 @@ function handleWishlistClick(event, btnEl, productId) {
     if (typeof event.preventDefault === 'function') event.preventDefault();
   }
 
-  // Support signatures handleWishlistClick(event, btnEl, id) or handleWishlistClick(btnEl, id)
-  if (typeof event === 'number') {
-    productId = event;
+  let id = parseInt(productId);
+  if (isNaN(id) && typeof btnEl === 'number') {
+    id = btnEl;
     btnEl = null;
-  } else if (typeof btnEl === 'number') {
-    productId = btnEl;
-    btnEl = event && event.target ? event.target : null;
   }
 
-  const btn = btnEl ? (btnEl.closest ? (btnEl.closest('.wishlist-btn') || btnEl) : btnEl) : null;
-  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.id === productId);
+  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.id === id);
 
-  if (!prod && btn) {
+  if (!prod && btnEl) {
+    const btn = btnEl.closest ? (btnEl.closest('.wishlist-btn') || btnEl) : btnEl;
     const card = btn.closest ? btn.closest('.product-card') : null;
     if (card) {
-      const titleEl = card.querySelector('.product-title');
-      if (titleEl) {
-        prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === titleEl.textContent);
-      }
+      const title = card.getAttribute('data-name') || card.querySelector('.product-title')?.textContent;
+      prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === title);
     }
   }
 
   if (!prod) {
-    prod = { id: productId || Date.now(), title: 'Designer Dress', price_pkr: 25000, image_url: 'images/emerald_gown.jpg', category: 'formal', fabric: 'Luxury Silk' };
+    prod = FULL_PRODUCT_CATALOGUE[0];
   }
 
   const existingIndex = wishlistItems.findIndex(item => item.id === prod.id || item.title === prod.title);
 
   if (existingIndex > -1) {
     wishlistItems.splice(existingIndex, 1);
-    if (btn) {
-      btn.classList.remove('active');
-      btn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-    }
-    showToast('Removed from wishlist');
+    showToast('Removed from Wishlist');
   } else {
     wishlistItems.push(prod);
-    if (btn) {
-      btn.classList.add('active');
-      btn.innerHTML = '<i class="fa-solid fa-heart" style="color:#e74c3c;"></i>';
-    }
-    showToast('Saved to wishlist ❤️');
+    showToast('Saved to Wishlist ❤️');
   }
 
   localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
   updateBadges();
+  
+  // Instant re-render so all heart buttons update to exact red solid state
+  if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
+    renderProductsGrid(allProducts);
+  }
   renderWishlistDrawer();
 }
 
