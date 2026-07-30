@@ -1,30 +1,30 @@
 /* ==========================================================================
    Samrina Boutique - Luxury Responsive Stylesheet
-   Theme 10: Deep Velvet Black & Radiant Rose Gold Edition (Vogue Runway)
+   Theme 4: Soft Powder Blush Pink & Champagne Gold Edition (Romantic Pastel)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Color Palette - Theme 10: Deep Velvet Black & Radiant Rose Gold */
-  --primary-emerald: #141416;
-  --emerald-light: #1E1E22;
-  --emerald-dark: #080809;
-  --gold-primary: #F4A460;
-  --gold-accent: #E0A96D;
-  --gold-light: #2A201A;
-  --ivory-bg: #0B0B0C;
-  --white: #141416;
-  --dark-charcoal: #FAF9F6;
-  --text-muted: #B8B0A6;
-  --border-light: rgba(244, 164, 96, 0.25);
-  --rose-blush: #1F1916;
+  /* Color Palette - Theme 4: Soft Powder Blush Pink & Champagne Gold */
+  --primary-emerald: #5C2234;     /* Deep Rose Velvet */
+  --emerald-light: #7A3348;      /* Rose Velvet Light */
+  --emerald-dark: #3D1220;       /* Dark Rose Velvet */
+  --gold-primary: #D4AF37;      /* Champagne Gold */
+  --gold-accent: #C5A059;       /* Soft Gold */
+  --gold-light: #FFF8EE;        /* Light Gold Glow */
+  --ivory-bg: #FFF5F6;          /* Soft Powder Blush Pink */
+  --white: #FFFFFF;             /* Pure White Surface */
+  --dark-charcoal: #2C2224;      /* Deep Espresso Text */
+  --text-muted: #7D6E71;        /* Soft Muted Rose Gray */
+  --border-light: #F3E0E2;      /* Gentle Blush Border */
+  --rose-blush: #FFEAEF;        /* Light Rose Highlight */
 
   /* Shadows & Glassmorphism */
-  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 16px 45px rgba(244, 164, 96, 0.25);
-  --glass-bg: rgba(20, 20, 22, 0.92);
+  --shadow-sm: 0 4px 14px rgba(92, 34, 52, 0.06);
+  --shadow-md: 0 8px 24px rgba(92, 34, 52, 0.12);
+  --shadow-lg: 0 16px 40px rgba(92, 34, 52, 0.18);
+  --glass-bg: rgba(255, 255, 255, 0.92);
 
   /* Typography */
   --font-serif: 'Playfair Display', Georgia, serif;
@@ -513,9 +513,9 @@ img {
   position: absolute;
   bottom: 12px;
   left: 12px;
-  background: rgba(20, 20, 22, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(4px);
-  color: var(--gold-accent);
+  color: var(--primary-emerald);
   font-size: 0.7rem;
   font-weight: 600;
   padding: 3px 8px;
