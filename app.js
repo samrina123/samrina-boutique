@@ -130,11 +130,12 @@ function renderProductsGrid(products) {
       ? `$${Math.round(p.price_pkr * PKR_TO_USD_RATE).toLocaleString()}`
       : `PKR ${p.price_pkr.toLocaleString()}`;
 
+    const isHearted = wishlistItems.some(item => item.title === p.title);
     card.innerHTML = `
       <div class="product-img-wrapper">
         <span class="product-tag">${p.stock_status || 'EXCLUSIVE'}</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></button>
+        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="toggleWishlist(this, '${p.title.replace(/'/g, "\\'")}')"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
@@ -309,30 +310,223 @@ function filterProducts() {
   loadProducts('all', query);
 }
 
-// 7. Wishlist Heart Toggle
-function toggleWishlist(btnEl) {
-  const isHearted = btnEl.classList.contains('active');
-  const icon = btnEl.querySelector('i');
+// Wishlist & Cart State arrays (Synced with LocalStorage)
+let wishlistItems = JSON.parse(localStorage.getItem('sb_wishlist_items') || '[]');
+let cartItems = JSON.parse(localStorage.getItem('sb_cart_items') || '[]');
 
-  if (isHearted) {
-    btnEl.classList.remove('active');
-    icon.className = 'fa-regular fa-heart';
-    wishlistCount = Math.max(0, wishlistCount - 1);
+function updateBadges() {
+  const wEl = document.getElementById('wishlistCount');
+  const cEl = document.getElementById('cartCount');
+  if (wEl) wEl.textContent = wishlistItems.length;
+  if (cEl) cEl.textContent = cartItems.length;
+}
+
+// 7. Wishlist Heart Toggle & Drawer Sync
+function toggleWishlist(btnEl, productTitle) {
+  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === productTitle);
+  if (!prod && btnEl) {
+    const card = btnEl.closest('.product-card');
+    if (card) {
+      const titleEl = card.querySelector('.product-title');
+      if (titleEl) {
+        prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === titleEl.textContent);
+      }
+    }
+  }
+  if (!prod) {
+    prod = { title: productTitle || 'Designer Dress', price_pkr: 25000, image_url: 'images/emerald_gown.jpg', category: 'formal', fabric: 'Luxury Silk' };
+  }
+
+  const existingIndex = wishlistItems.findIndex(item => item.title === prod.title);
+  
+  if (existingIndex > -1) {
+    wishlistItems.splice(existingIndex, 1);
+    if (btnEl) {
+      btnEl.classList.remove('active');
+      const icon = btnEl.querySelector('i');
+      if (icon) icon.className = 'fa-regular fa-heart';
+    }
     showToast('Removed from wishlist');
   } else {
-    btnEl.classList.add('active');
-    icon.className = 'fa-solid fa-heart';
-    wishlistCount++;
+    wishlistItems.push(prod);
+    if (btnEl) {
+      btnEl.classList.add('active');
+      const icon = btnEl.querySelector('i');
+      if (icon) icon.className = 'fa-solid fa-heart';
+    }
     showToast('Saved to wishlist ❤️');
   }
 
-  document.getElementById('wishlistCount').textContent = wishlistCount;
+  localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
+  updateBadges();
+  renderWishlistDrawer();
+}
+
+// Wishlist Side Drawer Handlers
+function openWishlistDrawer() {
+  renderWishlistDrawer();
+  document.getElementById('wishlistDrawer').classList.add('active');
+  document.getElementById('drawerOverlay').classList.add('active');
+}
+
+function closeWishlistDrawer() {
+  document.getElementById('wishlistDrawer').classList.remove('active');
+  document.getElementById('drawerOverlay').classList.remove('active');
+}
+
+function renderWishlistDrawer() {
+  const container = document.getElementById('wishlistDrawerList');
+  const countSpan = document.getElementById('wishlistDrawerCount');
+  if (!container) return;
+
+  if (countSpan) countSpan.textContent = wishlistItems.length;
+  container.innerHTML = '';
+
+  if (wishlistItems.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding: 50px 20px; color: var(--text-muted);">
+        <i class="fa-regular fa-heart" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 15px;"></i>
+        <h4 style="font-family:'Playfair Display',serif; color:var(--primary-emerald); margin-bottom: 6px; font-size: 1.1rem;">Your Wishlist is Empty</h4>
+        <p style="font-size: 0.85rem;">Click the heart icon on any dress to save your favorites here!</p>
+      </div>
+    `;
+    return;
+  }
+
+  wishlistItems.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = 'drawer-item-card';
+
+    const formattedPrice = currentCurrency === 'USD' 
+      ? `$${Math.round((item.price_pkr || 25000) * PKR_TO_USD_RATE).toLocaleString()}`
+      : `PKR ${(item.price_pkr || 25000).toLocaleString()}`;
+
+    card.innerHTML = `
+      <img src="${item.image_url || 'images/emerald_gown.jpg'}" class="drawer-item-img" onerror="handleImageError(this, '${item.category || 'formal'}')">
+      <div class="drawer-item-info">
+        <h4 class="drawer-item-title">${item.title}</h4>
+        <div class="drawer-item-price">${formattedPrice}</div>
+        <button class="whatsapp-order-btn" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 6px;" onclick="closeWishlistDrawer(); openOrderModal('${item.title.replace(/'/g, "\\'")}', ${item.price_pkr || 25000})">
+          <i class="fa-solid fa-bag-shopping"></i> Order Now
+        </button>
+      </div>
+      <button class="drawer-remove-btn" title="Remove" onclick="removeFromWishlist(${index})">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function removeFromWishlist(index) {
+  wishlistItems.splice(index, 1);
+  localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
+  updateBadges();
+  renderWishlistDrawer();
+  showToast('Item removed from wishlist');
+}
+
+// Shopping Cart Side Drawer Handlers
+function openCartDrawer() {
+  renderCartDrawer();
+  document.getElementById('cartDrawer').classList.add('active');
+  document.getElementById('drawerOverlay').classList.add('active');
+}
+
+function closeCartDrawer() {
+  document.getElementById('cartDrawer').classList.remove('active');
+  document.getElementById('drawerOverlay').classList.remove('active');
+}
+
+function closeAllDrawers() {
+  closeWishlistDrawer();
+  closeCartDrawer();
+}
+
+function renderCartDrawer() {
+  const container = document.getElementById('cartDrawerList');
+  const countSpan = document.getElementById('cartDrawerCount');
+  const footer = document.getElementById('cartDrawerFooter');
+  const subtotalSpan = document.getElementById('cartSubtotalText');
+  if (!container) return;
+
+  if (countSpan) countSpan.textContent = cartItems.length;
+  container.innerHTML = '';
+
+  if (cartItems.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding: 50px 20px; color: var(--text-muted);">
+        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 15px;"></i>
+        <h4 style="font-family:'Playfair Display',serif; color:var(--primary-emerald); margin-bottom: 6px; font-size: 1.1rem;">Your Shopping Cart is Empty</h4>
+        <p style="font-size: 0.85rem;">Explore our boutique catalog and click "Order Now" to add items here!</p>
+      </div>
+    `;
+    if (footer) footer.style.display = 'none';
+    return;
+  }
+
+  if (footer) footer.style.display = 'block';
+
+  let totalPkr = 0;
+  cartItems.forEach((item, index) => {
+    totalPkr += item.pricePkr || item.price_pkr || 25000;
+    const card = document.createElement('div');
+    card.className = 'drawer-item-card';
+
+    const itemPrice = item.pricePkr || item.price_pkr || 25000;
+    const formattedPrice = currentCurrency === 'USD' 
+      ? `$${Math.round(itemPrice * PKR_TO_USD_RATE).toLocaleString()}`
+      : `PKR ${itemPrice.toLocaleString()}`;
+
+    card.innerHTML = `
+      <img src="${item.image_url || 'images/emerald_gown.jpg'}" class="drawer-item-img" onerror="handleImageError(this, '${item.category || 'formal'}')">
+      <div class="drawer-item-info">
+        <h4 class="drawer-item-title">${item.title}</h4>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Size: ${item.selectedSize || 'M'}</div>
+        <div class="drawer-item-price" style="margin-top: 4px;">${formattedPrice}</div>
+      </div>
+      <button class="drawer-remove-btn" title="Remove" onclick="removeFromCart(${index})">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    `;
+    container.appendChild(card);
+  });
+
+  const formattedTotal = currentCurrency === 'USD'
+    ? `$${Math.round(totalPkr * PKR_TO_USD_RATE).toLocaleString()}`
+    : `PKR ${totalPkr.toLocaleString()}`;
+
+  if (subtotalSpan) subtotalSpan.textContent = formattedTotal;
+}
+
+function removeFromCart(index) {
+  cartItems.splice(index, 1);
+  localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
+  updateBadges();
+  renderCartDrawer();
+  showToast('Item removed from cart');
+}
+
+function proceedCartCheckout() {
+  if (cartItems.length === 0) return;
+  closeCartDrawer();
+  const firstItem = cartItems[0];
+  openOrderModal(firstItem.title, firstItem.pricePkr || firstItem.price_pkr || 25000);
 }
 
 // 8. Order Checkout Modal Logic & Custom Sizing
 function openOrderModal(title, pricePkr) {
-  currentOrderingProduct = { title: title, pricePkr: pricePkr, selectedSize: 'M', discountRate: 0 };
+  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === title) || { image_url: 'images/emerald_gown.jpg', category: 'formal' };
+  currentOrderingProduct = { title: title, pricePkr: pricePkr, selectedSize: 'M', discountRate: 0, image_url: prod.image_url, category: prod.category };
   
+  // Add item to Cart drawer list automatically
+  const existsInCart = cartItems.some(c => c.title === title);
+  if (!existsInCart) {
+    cartItems.push(currentOrderingProduct);
+    localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
+    updateBadges();
+  }
+
   document.getElementById('orderModalTitle').textContent = `Order: ${title}`;
   updateModalPriceDisplay(pricePkr);
   document.getElementById('discountTag').style.display = 'none';
@@ -573,5 +767,6 @@ function quickSearch(term) {
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', () => {
+  updateBadges();
   loadProducts();
 });
