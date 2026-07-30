@@ -135,7 +135,7 @@ function renderProductsGrid(products) {
       <div class="product-img-wrapper">
         <span class="product-tag">${p.stock_status || 'EXCLUSIVE'}</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
+        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(event, this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart" ${isHearted ? 'style="color:#e74c3c;"' : ''}></i></button>
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
@@ -211,7 +211,7 @@ function renderSimilarProducts(displayedProducts, category, search) {
       <div class="product-img-wrapper">
         <span class="product-tag" style="background:var(--gold-primary); color:var(--primary-emerald);">SIMILAR ITEM</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
+        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(event, this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart" ${isHearted ? 'style="color:#e74c3c;"' : ''}></i></button>
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
@@ -323,10 +323,26 @@ function updateBadges() {
 }
 
 // 7. Wishlist Heart Toggle & Drawer Sync
-function handleWishlistClick(btnEl, productId) {
+function handleWishlistClick(event, btnEl, productId) {
+  if (event) {
+    if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    if (typeof event.preventDefault === 'function') event.preventDefault();
+  }
+
+  // Support signatures handleWishlistClick(event, btnEl, id) or handleWishlistClick(btnEl, id)
+  if (typeof event === 'number') {
+    productId = event;
+    btnEl = null;
+  } else if (typeof btnEl === 'number') {
+    productId = btnEl;
+    btnEl = event && event.target ? event.target : null;
+  }
+
+  const btn = btnEl ? (btnEl.closest ? (btnEl.closest('.wishlist-btn') || btnEl) : btnEl) : null;
   let prod = FULL_PRODUCT_CATALOGUE.find(p => p.id === productId);
-  if (!prod && btnEl) {
-    const card = btnEl.closest('.product-card');
+
+  if (!prod && btn) {
+    const card = btn.closest ? btn.closest('.product-card') : null;
     if (card) {
       const titleEl = card.querySelector('.product-title');
       if (titleEl) {
@@ -334,22 +350,26 @@ function handleWishlistClick(btnEl, productId) {
       }
     }
   }
+
   if (!prod) {
     prod = { id: productId || Date.now(), title: 'Designer Dress', price_pkr: 25000, image_url: 'images/emerald_gown.jpg', category: 'formal', fabric: 'Luxury Silk' };
   }
 
   const existingIndex = wishlistItems.findIndex(item => item.id === prod.id || item.title === prod.title);
-  const icon = btnEl ? btnEl.querySelector('i') : null;
 
   if (existingIndex > -1) {
     wishlistItems.splice(existingIndex, 1);
-    if (btnEl) btnEl.classList.remove('active');
-    if (icon) icon.className = 'fa-regular fa-heart';
+    if (btn) {
+      btn.classList.remove('active');
+      btn.innerHTML = '<i class="fa-regular fa-heart"></i>';
+    }
     showToast('Removed from wishlist');
   } else {
     wishlistItems.push(prod);
-    if (btnEl) btnEl.classList.add('active');
-    if (icon) icon.className = 'fa-solid fa-heart';
+    if (btn) {
+      btn.classList.add('active');
+      btn.innerHTML = '<i class="fa-solid fa-heart" style="color:#e74c3c;"></i>';
+    }
     showToast('Saved to wishlist ❤️');
   }
 
@@ -360,7 +380,7 @@ function handleWishlistClick(btnEl, productId) {
 
 function toggleWishlist(btnEl, productTitle) {
   const prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === productTitle);
-  handleWishlistClick(btnEl, prod ? prod.id : 1);
+  handleWishlistClick(null, btnEl, prod ? prod.id : 1);
 }
 
 // Wishlist Side Drawer Handlers
