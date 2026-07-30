@@ -85,13 +85,13 @@
           </div>
 
           <!-- Wishlist Heart -->
-          <button class="action-icon-btn" title="Wishlist" onclick="showToast('Wishlist view opened')">
+          <button class="action-icon-btn" title="Wishlist" onclick="openWishlistDrawer()">
             <i class="fa-regular fa-heart"></i>
             <span class="badge" id="wishlistCount">0</span>
           </button>
 
           <!-- Shopping Cart Badge -->
-          <button class="action-icon-btn" title="Bag" onclick="showToast('Cart menu opened')">
+          <button class="action-icon-btn" title="Bag" onclick="openCartDrawer()">
             <i class="fa-solid fa-bag-shopping"></i>
             <span class="badge" id="cartCount">0</span>
           </button>
@@ -368,6 +368,40 @@
       </div>
     </div>
   </footer>
+
+  <!-- Drawer Overlay Backdrop -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeAllDrawers()"></div>
+
+  <!-- Wishlist Side Drawer -->
+  <div class="side-drawer" id="wishlistDrawer">
+    <div class="drawer-header">
+      <h3 style="font-family: 'Playfair Display', serif; color: var(--primary-emerald); font-size: 1.2rem;"><i class="fa-solid fa-heart" style="color: #e74c3c;"></i> My Saved Wishlist (<span id="wishlistDrawerCount">0</span>)</h3>
+      <button class="modal-close" onclick="closeWishlistDrawer()">&times;</button>
+    </div>
+    <div class="drawer-body" id="wishlistDrawerList">
+      <!-- Dynamically rendered -->
+    </div>
+  </div>
+
+  <!-- Shopping Cart Side Drawer -->
+  <div class="side-drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <h3 style="font-family: 'Playfair Display', serif; color: var(--primary-emerald); font-size: 1.2rem;"><i class="fa-solid fa-bag-shopping" style="color: var(--gold-primary);"></i> Shopping Cart (<span id="cartDrawerCount">0</span>)</h3>
+      <button class="modal-close" onclick="closeCartDrawer()">&times;</button>
+    </div>
+    <div class="drawer-body" id="cartDrawerList">
+      <!-- Dynamically rendered -->
+    </div>
+    <div class="drawer-footer" id="cartDrawerFooter">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-weight: 700; font-size: 1rem;">
+        <span>Total Bill Amount:</span>
+        <span id="cartSubtotalText" style="color: var(--primary-emerald); font-size: 1.1rem;">PKR 0</span>
+      </div>
+      <button class="btn-primary" style="width: 100%; justify-content: center; font-size: 0.95rem; border-radius: 25px; padding: 12px;" onclick="proceedCartCheckout()">
+        <i class="fa-solid fa-lock"></i> Checkout All Items
+      </button>
+    </div>
+  </div>
 
   <!-- Custom Script -->
   <script src="app.js"></script>
