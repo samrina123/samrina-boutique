@@ -28,9 +28,52 @@
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
     }
 
-    /* Sidebar Navigation */
+    /* Top Navigation Bar for Mobile & Desktop */
+    .mobile-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .mobile-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mobile-menu-btn {
+      background: var(--emerald-accent);
+      color: var(--gold-light);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .app-layout {
+      display: flex;
+      flex-grow: 1;
+      position: relative;
+    }
+
+    /* Collapsible Sidebar Drawer */
     .sidebar {
       width: 260px;
       background: var(--card-bg);
@@ -38,13 +81,24 @@
       padding: 30px 20px;
       display: flex;
       flex-direction: column;
+      transition: all 0.3s ease;
+      z-index: 99;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(3px);
+      z-index: 98;
     }
     
     .sidebar-logo {
       font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: var(--gold-primary);
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -54,7 +108,7 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     
     .sidebar-link {
@@ -65,141 +119,188 @@
       border-radius: 10px;
       color: var(--text-muted);
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 0.95rem;
       transition: all 0.2s;
+      cursor: pointer;
     }
 
     .sidebar-link:hover, .sidebar-link.active {
       background: var(--emerald-accent);
       color: var(--gold-light);
+      border-left: 3px solid var(--gold-primary);
     }
 
     /* Main Content Area */
     .main-content {
       flex-grow: 1;
-      padding: 40px;
+      padding: 30px;
       overflow-y: auto;
+      width: 100%;
     }
 
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
 
     .page-title {
       font-family: 'Playfair Display', serif;
-      font-size: 2rem;
+      font-size: 1.8rem;
       color: var(--gold-primary);
     }
 
     .back-to-site-btn {
       background: var(--gold-primary);
       color: var(--primary-dark);
-      padding: 10px 20px;
+      padding: 10px 18px;
       border-radius: 20px;
       font-weight: 700;
+      font-size: 0.85rem;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      transition: transform 0.2s;
     }
 
-    /* Metrics Grid */
+    .back-to-site-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Analytics Metrics Grid */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin-bottom: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
     }
 
     .metric-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      padding: 24px;
-      border-radius: 16px;
+      padding: 20px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
 
     .metric-icon {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       background: rgba(212, 175, 55, 0.15);
       color: var(--gold-primary);
-      font-size: 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
     }
 
     .metric-value {
-      font-size: 1.8rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--gold-light);
     }
 
     .metric-label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
     }
 
-    /* Tables & Forms */
+    /* Section Cards & Responsive Tables */
     .section-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 28px;
-      margin-bottom: 40px;
+      padding: 24px;
+      margin-bottom: 30px;
     }
 
     .section-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       color: var(--gold-light);
       margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+      min-width: 650px;
     }
 
     th, td {
-      padding: 14px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 0.9rem;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
     }
 
     th {
+      background: rgba(22, 78, 61, 0.5);
       color: var(--gold-primary);
       font-weight: 600;
       text-transform: uppercase;
       font-size: 0.75rem;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
-    .status-badge {
-      background: rgba(37, 211, 102, 0.2);
-      color: #25D366;
-      padding: 4px 10px;
-      border-radius: 12px;
+    tr:last-child td { border-bottom: none; }
+
+    .status-select {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-light);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background: rgba(235, 87, 87, 0.15);
+      color: #eb5757;
+      border: 1px solid rgba(235, 87, 87, 0.3);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
       font-size: 0.75rem;
       font-weight: 600;
     }
 
-    /* Form Styles */
+    .delete-btn:hover {
+      background: #eb5757;
+      color: white;
+    }
+
+    /* Inventory Add Form */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
     .form-group {
@@ -209,17 +310,19 @@
     }
 
     .form-group label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
+      font-weight: 600;
     }
 
     .form-control {
-      background: rgba(10, 30, 23, 0.8);
+      background: var(--primary-dark);
       border: 1px solid var(--border-color);
-      padding: 12px;
-      border-radius: 8px;
       color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
       font-family: inherit;
+      font-size: 0.85rem;
     }
 
     .form-control:focus {
@@ -231,167 +334,283 @@
       background: var(--gold-primary);
       color: var(--primary-dark);
       border: none;
-      padding: 14px 24px;
+      padding: 12px 24px;
       border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
     }
 
-    .delete-btn {
-      background: rgba(231, 76, 60, 0.2);
-      color: #e74c3c;
-      border: 1px solid #e74c3c;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8rem;
+    /* Responsive Mobile Media Queries (< 768px) */
+    @media (max-width: 768px) {
+      .app-layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -280px;
+        width: 270px;
+        box-shadow: 10px 0 25px rgba(0,0,0,0.5);
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+
+      .header-bar {
+        margin-bottom: 16px;
+      }
+
+      .page-title {
+        font-size: 1.4rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group[style*="grid-column: span 2"] {
+        grid-column: span 1 !important;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
+  <!-- Top Navigation Header -->
+  <header class="mobile-header">
+    <div class="mobile-logo">
       <i class="fa-solid fa-crown"></i> Samrina Admin
     </div>
-    <ul class="sidebar-menu">
-      <li><a href="#" class="sidebar-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
-      <li><a href="#ordersSection" class="sidebar-link"><i class="fa-solid fa-receipt"></i> Orders</a></li>
-      <li><a href="#productsSection" class="sidebar-link"><i class="fa-solid fa-shirt"></i> Inventory</a></li>
-    </ul>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="header-bar">
-      <h1 class="page-title">Database & Orders Overview</h1>
-      <a href="index.html" class="back-to-site-btn" target="_blank">
-        <i class="fa-solid fa-store"></i> View Storefront
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <button class="mobile-menu-btn" onclick="toggleSidebarMenu()">
+        <i class="fa-solid fa-bars"></i> Menu
+      </button>
+      <a href="index.html" class="back-to-site-btn" target="_blank" style="padding: 6px 12px; font-size: 0.75rem;">
+        <i class="fa-solid fa-store"></i> Storefront
       </a>
     </div>
+  </header>
 
-    <!-- Analytics Metrics Cards -->
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
-        <div>
-          <div class="metric-value" id="statRevenue">PKR 0</div>
-          <div class="metric-label">Total SQLite Revenue</div>
-        </div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-icon"><i class="fa-solid fa-bag-shopping"></i></div>
-        <div>
-          <div class="metric-value" id="statOrders">0</div>
-          <div class="metric-label">Total Saved Orders</div>
-        </div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
-        <div>
-          <div class="metric-value" id="statProducts">0</div>
-          <div class="metric-label">Active Dresses in DB</div>
-        </div>
-      </div>
-    </div>
+  <div class="app-layout">
+    <!-- Sidebar Overlay backdrop for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebarMenu()"></div>
 
-    <!-- Recent Customer Orders Table -->
-    <div class="section-card" id="ordersSection">
-      <div class="section-title">
-        <span><i class="fa-solid fa-receipt"></i> Recent Customer Orders (SQLite Database)</span>
-        <button onclick="fetchAdminData()" style="color: var(--gold-primary); background:none; border:none; cursor:pointer;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebarMenu">
+      <div class="sidebar-logo">
+        <i class="fa-solid fa-crown"></i> Samrina Admin
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Order #</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>Product & Size</th>
-            <th>Total (PKR)</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="ordersTableBody">
-          <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading database orders...</td></tr>
-        </tbody>
-      </table>
-    </div>
+      <ul class="sidebar-menu">
+        <li>
+          <a class="sidebar-link active" id="tab-dashboard" onclick="switchTab('dashboard')">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard Overview
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" id="tab-orders" onclick="switchTab('orders')">
+            <i class="fa-solid fa-receipt"></i> Orders Management
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" id="tab-inventory" onclick="switchTab('inventory')">
+            <i class="fa-solid fa-shirt"></i> Inventory Control
+          </a>
+        </li>
+      </ul>
+    </aside>
 
-    <!-- Inventory Management Table & Add Form -->
-    <div class="section-card" id="productsSection">
-      <div class="section-title">
-        <span><i class="fa-solid fa-plus-circle"></i> Add New Dress to Database</span>
+    <!-- Main Content Panel -->
+    <main class="main-content">
+      <div class="header-bar">
+        <h1 class="page-title" id="pageMainHeading">Database & Orders Overview</h1>
       </div>
-      <form id="addProductForm" onsubmit="handleAddProduct(event)">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Dress Title</label>
-            <input type="text" id="addTitle" class="form-control" placeholder="e.g. Royal Maroon Velvet Kurti" required>
-          </div>
-          <div class="form-group">
-            <label>Category</label>
-            <select id="addCategory" class="form-control">
-              <option value="saree">Sarees Collection</option>
-              <option value="casual">Casual Wear</option>
-              <option value="shalwar">Traditional Shalwar Kameez</option>
-              <option value="pret">Pret (Ready to Wear)</option>
-              <option value="formal">Luxury Formal</option>
-              <option value="bridal">Bridal Couture</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Fabric Detail</label>
-            <input type="text" id="addFabric" class="form-control" placeholder="e.g. Pure Chiffon Zardozi" required>
-          </div>
-          <div class="form-group">
-            <label>Price (PKR)</label>
-            <input type="number" id="addPrice" class="form-control" placeholder="25000" required>
-          </div>
-          <div class="form-group" style="grid-column: span 2;">
-            <label>Image URL Path</label>
-            <input type="text" id="addImage" class="form-control" value="images/emerald_gown.jpg" required>
+
+      <!-- Analytics Metrics Summary Cards -->
+      <div class="metrics-grid" id="metricsSection">
+        <div class="metric-card">
+          <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
+          <div>
+            <div class="metric-value" id="statRevenue">PKR 0</div>
+            <div class="metric-label">Total Store Revenue</div>
           </div>
         </div>
-        <button type="submit" class="submit-btn"><i class="fa-solid fa-database"></i> Insert into Database</button>
-      </form>
-
-      <div style="margin-top: 40px;">
-        <h4 style="font-family: 'Playfair Display', serif; color: var(--gold-light); margin-bottom: 16px;">Active Products in Database</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Image</th>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Fabric</th>
-              <th>Price (PKR)</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="productsTableBody">
-            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading inventory...</td></tr>
-          </tbody>
-        </table>
+        <div class="metric-card">
+          <div class="metric-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          <div>
+            <div class="metric-value" id="statOrders">0</div>
+            <div class="metric-label">Total Placed Orders</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <div>
+            <div class="metric-value" id="statProducts">0</div>
+            <div class="metric-label">Active Dresses in Catalogue</div>
+          </div>
+        </div>
       </div>
-    </div>
 
-  </main>
+      <!-- Customer Orders Table View -->
+      <div class="section-card" id="ordersSection">
+        <div class="section-title">
+          <span><i class="fa-solid fa-receipt"></i> Recent Customer Orders</span>
+          <button onclick="fetchAdminData()" style="color: var(--gold-primary); background:none; border:none; cursor:pointer; font-weight:600; font-size:0.85rem;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Product & Size</th>
+                <th>Total Bill</th>
+                <th>Order Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading database orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Inventory Management Form & Catalog View -->
+      <div class="section-card" id="inventorySection">
+        <div class="section-title">
+          <span><i class="fa-solid fa-plus-circle"></i> Add New Dress to Catalogue</span>
+        </div>
+        <form id="addProductForm" onsubmit="handleAddProduct(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Dress Title</label>
+              <input type="text" id="addTitle" class="form-control" placeholder="e.g. Royal Maroon Velvet Kurti" required>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="addCategory" class="form-control">
+                <option value="saree">Sarees Collection</option>
+                <option value="casual">Casual Wear</option>
+                <option value="shalwar">Traditional Shalwar Kameez</option>
+                <option value="pret">Pret (Ready to Wear)</option>
+                <option value="formal">Luxury Formal</option>
+                <option value="bridal">Bridal Couture</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Fabric Detail</label>
+              <input type="text" id="addFabric" class="form-control" placeholder="e.g. Pure Chiffon Zardozi" required>
+            </div>
+            <div class="form-group">
+              <label>Price (PKR)</label>
+              <input type="number" id="addPrice" class="form-control" placeholder="25000" required>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Image URL Path</label>
+              <input type="text" id="addImage" class="form-control" value="images/emerald_gown.jpg" required>
+            </div>
+          </div>
+          <button type="submit" class="submit-btn"><i class="fa-solid fa-database"></i> Insert into Catalogue</button>
+        </form>
+
+        <div style="margin-top: 30px;">
+          <h4 style="font-family: 'Playfair Display', serif; color: var(--gold-light); margin-bottom: 16px;">Active Products Inventory</h4>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Image</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Fabric</th>
+                  <th>Price (PKR)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading inventory...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
 
   <script>
     const API_BASE = 'http://localhost:5000/api';
 
+    // 1. Mobile Sidebar Toggle Drawer
+    function toggleSidebarMenu() {
+      const sidebar = document.getElementById('sidebarMenu');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    // 2. Tab Navigation Switcher (Dashboard / Orders / Inventory)
+    function switchTab(tabName) {
+      const links = document.querySelectorAll('.sidebar-link');
+      links.forEach(link => link.classList.remove('active'));
+
+      const activeLink = document.getElementById(`tab-${tabName}`);
+      if (activeLink) activeLink.classList.add('active');
+
+      const metricsSec = document.getElementById('metricsSection');
+      const ordersSec = document.getElementById('ordersSection');
+      const invSec = document.getElementById('inventorySection');
+      const heading = document.getElementById('pageMainHeading');
+
+      if (tabName === 'dashboard') {
+        heading.textContent = 'Database & Analytics Overview';
+        metricsSec.style.display = 'grid';
+        ordersSec.style.display = 'block';
+        invSec.style.display = 'block';
+      } else if (tabName === 'orders') {
+        heading.textContent = 'Customer Orders Management';
+        metricsSec.style.display = 'none';
+        ordersSec.style.display = 'block';
+        invSec.style.display = 'none';
+      } else if (tabName === 'inventory') {
+        heading.textContent = 'Inventory & Catalogue Control';
+        metricsSec.style.display = 'none';
+        ordersSec.style.display = 'none';
+        invSec.style.display = 'block';
+      }
+
+      // Automatically collapse mobile sidebar drawer on click
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebarMenu').classList.remove('active');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+      }
+    }
+
+    // 3. Fetch Data & LocalStorage Fallback
     async function fetchAdminData() {
       try {
         let ordersList = [];
         let totalRev = 0;
         let totalProds = 36;
 
-        // 1. Fetch Stats & Orders from REST API if online
+        // Try API fetch if online
         try {
           const statsRes = await fetch(`${API_BASE}/stats`);
           const statsData = await statsRes.json();
@@ -410,19 +629,19 @@
           console.warn('API server offline (GitHub Pages mode). Fetching orders from LocalStorage.');
         }
 
-        // 2. Combine API orders with LocalStorage orders for GitHub Pages
+        // Combine API orders with LocalStorage orders
         const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
         if (ordersList.length === 0 && localOrders.length > 0) {
           ordersList = localOrders;
           totalRev = localOrders.reduce((sum, o) => sum + (o.total_price_pkr || 0), 0);
         }
 
-        // Update Metric Stat Cards
+        // Update Stat Cards
         document.getElementById('statProducts').textContent = totalProds;
         document.getElementById('statOrders').textContent = ordersList.length;
         document.getElementById('statRevenue').textContent = `PKR ${totalRev.toLocaleString()}`;
 
-        // Render Orders Table Body
+        // Render Orders Table
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
 
@@ -437,7 +656,7 @@
               <td>${ord.product_title} (${ord.size}) ${ord.custom_measurements ? '<br><small style="color:var(--text-muted);">' + ord.custom_measurements + '</small>' : ''}</td>
               <td style="font-weight: 600;">PKR ${ord.total_price_pkr.toLocaleString()}</td>
               <td>
-                <select class="status-select" onchange="updateOrderStatus(${ord.id || index}, this.value)" style="background: rgba(212,175,55,0.15); color: var(--gold-light); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 8px; font-weight: 600; font-family: inherit; cursor: pointer;">
+                <select class="status-select" onchange="updateOrderStatus(${ord.id || index}, this.value)">
                   <option value="Pending" ${ord.order_status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
                   <option value="Confirmed" ${ord.order_status === 'Confirmed' ? 'selected' : ''}>✅ Confirmed</option>
                   <option value="In Tailoring" ${ord.order_status === 'In Tailoring' ? 'selected' : ''}>🪡 In Tailoring</option>
@@ -452,27 +671,32 @@
           tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No orders placed yet. Place an order on the storefront!</td></tr>';
         }
 
-        // 3. Fetch Active Products
-        const prodRes = await fetch(`${API_BASE}/products`);
-        const prodData = await prodRes.json();
-        const pTbody = document.getElementById('productsTableBody');
-        pTbody.innerHTML = '';
+        // Fetch Active Products if API online
+        try {
+          const prodRes = await fetch(`${API_BASE}/products`);
+          const prodData = await prodRes.json();
+          const pTbody = document.getElementById('productsTableBody');
+          pTbody.innerHTML = '';
 
-        if (prodData.status === 'success' && prodData.data.length > 0) {
-          prodData.data.forEach(p => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td style="font-weight: 700; color: var(--gold-light);">#${p.id}</td>
-              <td><img src="${p.image_url}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 6px;"></td>
-              <td style="font-weight: 600;">${p.title}</td>
-              <td><span style="text-transform: uppercase; font-size: 0.75rem; background: rgba(212,175,55,0.15); color: var(--gold-primary); padding: 3px 8px; border-radius: 6px;">${p.category}</span></td>
-              <td>${p.fabric}</td>
-              <td style="font-weight: 700; color: var(--gold-light);">PKR ${p.price_pkr.toLocaleString()}</td>
-              <td><button class="delete-btn" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i> Delete</button></td>
-            `;
-            pTbody.appendChild(tr);
-          });
+          if (prodData.status === 'success' && prodData.data.length > 0) {
+            prodData.data.forEach(p => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td style="font-weight: 700; color: var(--gold-light);">#${p.id}</td>
+                <td><img src="${p.image_url}" style="width: 36px; height: 45px; object-fit: cover; border-radius: 6px;"></td>
+                <td style="font-weight: 600;">${p.title}</td>
+                <td><span style="text-transform: uppercase; font-size: 0.75rem; background: rgba(212,175,55,0.15); color: var(--gold-primary); padding: 3px 8px; border-radius: 6px;">${p.category}</span></td>
+                <td>${p.fabric}</td>
+                <td style="font-weight: 700; color: var(--gold-light);">PKR ${p.price_pkr.toLocaleString()}</td>
+                <td><button class="delete-btn" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i> Delete</button></td>
+              `;
+              pTbody.appendChild(tr);
+            });
+          }
+        } catch (err) {
+          console.warn('API inventory fetch offline.');
         }
+
       } catch (err) {
         console.error('Error fetching admin data:', err);
       }
@@ -495,7 +719,6 @@
     }
 
     async function updateOrderStatus(orderId, newStatus) {
-      // 1. Try API update if online
       try {
         const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
           method: 'PUT',
@@ -511,7 +734,6 @@
         console.warn('API server offline (GitHub Pages mode). Updating status in LocalStorage.');
       }
 
-      // 2. LocalStorage Fallback for GitHub Pages Admin
       let localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
       if (typeof orderId === 'number' && localOrders[orderId]) {
         localOrders[orderId].order_status = newStatus;
@@ -567,7 +789,7 @@
       setTimeout(() => { toast.style.opacity = '0'; }, 2500);
     }
 
-    // Initial Fetch
+    // Initial Fetch & Default View
     fetchAdminData();
   </script>
 </body>
