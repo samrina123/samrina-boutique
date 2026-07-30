@@ -677,34 +677,45 @@ async function submitOrder(e) {
   closeOrderModal();
   cartCount++;
   document.getElementById('cartCount').textContent = cartCount;
-  showToast(`Order #${savedOrderNumber} Confirmed! Opening WhatsApp... 🛍️`);
 
-  // 4. Format & Trigger Direct WhatsApp Order Message
+  // 4. Format & Trigger Direct WhatsApp / Gmail Order Message
   const formattedPriceText = currentCurrency === 'USD'
     ? `$${Math.round(finalPrice * PKR_TO_USD_RATE).toLocaleString()}`
     : `PKR ${finalPrice.toLocaleString()}`;
 
-  const waText = 
-`🛍️ *NEW ORDER - SAMRINA BOUTIQUE* 🛍️
+  const orderText = 
+`🛍️ NEW ORDER - SAMRINA BOUTIQUE 🛍️
 
-*Order No:* ${savedOrderNumber}
-*Dress:* ${currentOrderingProduct.title}
-*Size:* ${currentOrderingProduct.selectedSize} ${customMeasurements ? ' (' + customMeasurements + ')' : ''}
-*Total Bill:* ${formattedPriceText} ${currentOrderingProduct.discountRate > 0 ? '(Promo Discount Applied!)' : ''}
+Order No: ${savedOrderNumber}
+Dress: ${currentOrderingProduct.title}
+Size: ${currentOrderingProduct.selectedSize} ${customMeasurements ? ' (' + customMeasurements + ')' : ''}
+Total Bill: ${formattedPriceText} ${currentOrderingProduct.discountRate > 0 ? '(Promo Discount Applied!)' : ''}
 
 ----------------------------------------
-👤 *CUSTOMER DETAILS:*
-*Name:* ${name}
-*Phone:* ${phone}
-*Address:* ${address}
+👤 CUSTOMER DETAILS:
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
 
-_Please confirm my order and stitching schedule. Thank you!_`;
+Please confirm my order and stitching schedule. Thank you!`;
 
-  const waUrl = `https://wa.me/${BOUTIQUE_WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
-  
-  setTimeout(() => {
-    window.open(waUrl, '_blank');
-  }, 800);
+  if (window.orderChannel === 'gmail') {
+    showToast(`Order #${savedOrderNumber} Confirmed! Opening Gmail... 📧`);
+    const targetEmail = 'samrinamughal456@gmail.com';
+    const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(`NEW ORDER #${savedOrderNumber} - ${currentOrderingProduct.title}`)}&body=${encodeURIComponent(orderText)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${targetEmail}&su=${encodeURIComponent(`NEW ORDER #${savedOrderNumber} - ${currentOrderingProduct.title}`)}&body=${encodeURIComponent(orderText)}`;
+    
+    setTimeout(() => {
+      const opened = window.open(gmailUrl, '_blank');
+      if (!opened) window.location.href = mailtoUrl;
+    }, 600);
+  } else {
+    showToast(`Order #${savedOrderNumber} Confirmed! Opening WhatsApp... 🛍️`);
+    const waUrl = `https://wa.me/${BOUTIQUE_WHATSAPP_NUMBER}?text=${encodeURIComponent(orderText)}`;
+    setTimeout(() => {
+      window.open(waUrl, '_blank');
+    }, 600);
+  }
 }
 
 // 11. Live Order Tracking Modal Handlers
@@ -776,6 +787,34 @@ function quickSearch(term) {
   const section = document.getElementById('collections');
   if (section) section.scrollIntoView({ behavior: 'smooth' });
   showToast(`Filtered by "${term}"`);
+}
+
+// 14. Customer Care Modals Handlers (Size Guide, Shipping Policy, Contact Us)
+function openSizeGuideModal() {
+  const modal = document.getElementById('sizeGuideModal');
+  if (modal) modal.classList.add('active');
+}
+function closeSizeGuideModal() {
+  const modal = document.getElementById('sizeGuideModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function openShippingModal() {
+  const modal = document.getElementById('shippingModal');
+  if (modal) modal.classList.add('active');
+}
+function closeShippingModal() {
+  const modal = document.getElementById('shippingModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function openContactModal() {
+  const modal = document.getElementById('contactModal');
+  if (modal) modal.classList.add('active');
+}
+function closeContactModal() {
+  const modal = document.getElementById('contactModal');
+  if (modal) modal.classList.remove('active');
 }
 
 // Initial Load
