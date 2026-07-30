@@ -254,9 +254,9 @@
   </div>
 
   <!-- Track Order Modal -->
-  <div class="modal-overlay" id="trackModal">
+  <div class="modal-overlay" id="trackModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="modal-card" style="max-width: 540px;">
-      <button class="modal-close" onclick="closeTrackModal()">&times;</button>
+      <button class="modal-close" onclick="document.getElementById('trackModal').classList.remove('active')">&times;</button>
       <div style="padding: 30px;">
         <h3 class="modal-title" style="margin-bottom: 6px;"><i class="fa-solid fa-location-crosshairs"></i> Track Your Order</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Enter your unique Order Number (e.g. <code>SB-1785362823-972</code>) to check live status.</p>
@@ -345,10 +345,10 @@
         <div class="footer-col">
           <h4>Customer Care</h4>
           <ul class="footer-links">
-            <li><a href="javascript:void(0)" onclick="openSizeGuideModal()">Size Guide</a></li>
-            <li><a href="javascript:void(0)" onclick="openShippingModal()">Shipping Policy</a></li>
-            <li><a href="javascript:void(0)" onclick="openTrackModal()">Track Order</a></li>
-            <li><a href="javascript:void(0)" onclick="openContactModal()">Contact Us</a></li>
+            <li><a href="javascript:void(0)" onclick="var m=document.getElementById('sizeGuideModal');if(m)m.classList.add('active');">Size Guide</a></li>
+            <li><a href="javascript:void(0)" onclick="var m=document.getElementById('shippingModal');if(m)m.classList.add('active');">Shipping Policy</a></li>
+            <li><a href="javascript:void(0)" onclick="var m=document.getElementById('trackModal');if(m)m.classList.add('active');">Track Order</a></li>
+            <li><a href="javascript:void(0)" onclick="var m=document.getElementById('contactModal');if(m)m.classList.add('active');">Contact Us</a></li>
           </ul>
         </div>
         <div class="footer-col">
