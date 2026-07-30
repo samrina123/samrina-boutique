@@ -387,34 +387,57 @@
 
     async function fetchAdminData() {
       try {
-        // 1. Fetch Stats
-        const statsRes = await fetch(`${API_BASE}/stats`);
-        const statsData = await statsRes.json();
-        if (statsData.status === 'success') {
-          const d = statsData.data;
-          document.getElementById('statProducts').textContent = d.total_products;
-          document.getElementById('statOrders').textContent = d.total_orders;
-          document.getElementById('statRevenue').textContent = `PKR ${d.total_revenue_pkr.toLocaleString()}`;
+        let ordersList = [];
+        let totalRev = 0;
+        let totalProds = 36;
+
+        // 1. Fetch Stats & Orders from REST API if online
+        try {
+          const statsRes = await fetch(`${API_BASE}/stats`);
+          const statsData = await statsRes.json();
+          if (statsData.status === 'success') {
+            const d = statsData.data;
+            totalProds = d.total_products;
+            totalRev = d.total_revenue_pkr;
+          }
+
+          const ordersRes = await fetch(`${API_BASE}/orders`);
+          const ordersData = await ordersRes.json();
+          if (ordersData.status === 'success') {
+            ordersList = ordersData.data;
+          }
+        } catch (err) {
+          console.warn('API server offline (GitHub Pages mode). Fetching orders from LocalStorage.');
         }
 
-        // 2. Fetch Orders
-        const ordersRes = await fetch(`${API_BASE}/orders`);
-        const ordersData = await ordersRes.json();
+        // 2. Combine API orders with LocalStorage orders for GitHub Pages
+        const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+        if (ordersList.length === 0 && localOrders.length > 0) {
+          ordersList = localOrders;
+          totalRev = localOrders.reduce((sum, o) => sum + (o.total_price_pkr || 0), 0);
+        }
+
+        // Update Metric Stat Cards
+        document.getElementById('statProducts').textContent = totalProds;
+        document.getElementById('statOrders').textContent = ordersList.length;
+        document.getElementById('statRevenue').textContent = `PKR ${totalRev.toLocaleString()}`;
+
+        // Render Orders Table Body
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
 
-        if (ordersData.status === 'success' && ordersData.data.length > 0) {
-          ordersData.data.forEach(ord => {
+        if (ordersList.length > 0) {
+          ordersList.forEach((ord, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td style="font-weight: 700; color: var(--gold-light);">${ord.order_number}</td>
-              <td>${ord.customer_name}</td>
-              <td>${ord.customer_phone}</td>
-              <td>${ord.customer_address}</td>
-              <td>${ord.product_title} (${ord.size})</td>
+              <td style="font-weight: 700; color: var(--gold-light);">${ord.order_number || ('SB-ORD-' + (index + 1))}</td>
+              <td>${ord.customer_name || 'Customer'}</td>
+              <td>${ord.customer_phone || '-'}</td>
+              <td>${ord.customer_address || '-'}</td>
+              <td>${ord.product_title} (${ord.size}) ${ord.custom_measurements ? '<br><small style="color:var(--text-muted);">' + ord.custom_measurements + '</small>' : ''}</td>
               <td style="font-weight: 600;">PKR ${ord.total_price_pkr.toLocaleString()}</td>
               <td>
-                <select class="status-select" onchange="updateOrderStatus(${ord.id}, this.value)" style="background: rgba(212,175,55,0.15); color: var(--gold-light); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 8px; font-weight: 600; font-family: inherit; cursor: pointer;">
+                <select class="status-select" onchange="updateOrderStatus(${ord.id || index}, this.value)" style="background: rgba(212,175,55,0.15); color: var(--gold-light); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 8px; font-weight: 600; font-family: inherit; cursor: pointer;">
                   <option value="Pending" ${ord.order_status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
                   <option value="Confirmed" ${ord.order_status === 'Confirmed' ? 'selected' : ''}>✅ Confirmed</option>
                   <option value="In Tailoring" ${ord.order_status === 'In Tailoring' ? 'selected' : ''}>🪡 In Tailoring</option>
@@ -426,7 +449,7 @@
             tbody.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No orders found in database yet. Place an order on the storefront!</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No orders placed yet. Place an order on the storefront!</td></tr>';
         }
 
         // 3. Fetch Active Products

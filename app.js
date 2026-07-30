@@ -325,9 +325,9 @@ function toggleCustomSizing(btnEl) {
   btnEl.classList.add('active');
 }
 
-// 9. Promo Code System
+// 9. Promo Code System (Works both with Backend API & Serverless GitHub Pages)
 async function applyPromoCode() {
-  const code = document.getElementById('promoInput').value;
+  const code = (document.getElementById('promoInput').value || '').trim().toUpperCase();
   if (!code) return;
 
   try {
@@ -344,9 +344,28 @@ async function applyPromoCode() {
       updateModalPriceDisplay(discountedPrice);
       document.getElementById('discountTag').style.display = 'inline-block';
       showToast(data.message);
+      return;
     }
   } catch (err) {
-    showToast('Invalid promo code');
+    console.warn('API promo check offline, using client-side promo validator.');
+  }
+
+  // Client-side Promo Fallback for GitHub Pages
+  const PROMO_CODES = {
+    'SAMRINA10': { rate: 0.10, msg: '10% Discount Applied! 🎉' },
+    'EID20': { rate: 0.20, msg: '20% Eid Discount Applied! 🌙' },
+    'WELCOME5': { rate: 0.05, msg: '5% Welcome Discount Applied! ✨' }
+  };
+
+  if (PROMO_CODES[code]) {
+    const promoInfo = PROMO_CODES[code];
+    currentOrderingProduct.discountRate = promoInfo.rate;
+    const discountedPrice = currentOrderingProduct.pricePkr * (1 - promoInfo.rate);
+    updateModalPriceDisplay(discountedPrice);
+    document.getElementById('discountTag').style.display = 'inline-block';
+    showToast(promoInfo.msg);
+  } else {
+    showToast('Invalid promo code. Try SAMRINA10 or EID20');
   }
 }
 
@@ -356,7 +375,7 @@ function updateModalPriceDisplay(pricePkr) {
     : `PKR ${pricePkr.toLocaleString()}`;
 }
 
-// 10. Submit Customer Order to SQLite Backend Database
+// 10. Submit Customer Order (Works 100% on GitHub Pages via Direct WhatsApp & Local Storage)
 async function submitOrder(e) {
   e.preventDefault();
 
@@ -370,12 +389,14 @@ async function submitOrder(e) {
     const w = document.getElementById('mWaist').value;
     const h = document.getElementById('mHips').value;
     const l = document.getElementById('mLength').value;
-    customMeasurements = `Chest: ${c}, Waist: ${w}, Hips: ${h}, Length: ${l}`;
+    customMeasurements = `Chest: ${c || 'Std'}, Waist: ${w || 'Std'}, Hips: ${h || 'Std'}, Length: ${l || 'Std'}`;
   }
 
   const finalPrice = currentOrderingProduct.pricePkr * (1 - currentOrderingProduct.discountRate);
+  const generatedOrderNum = `SB-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
   const orderPayload = {
+    order_number: generatedOrderNum,
     customer_name: name,
     customer_phone: phone,
     customer_address: address,
@@ -383,9 +404,13 @@ async function submitOrder(e) {
     size: currentOrderingProduct.selectedSize,
     custom_measurements: customMeasurements,
     total_price_pkr: finalPrice,
-    discount_applied: currentOrderingProduct.discountRate
+    discount_applied: currentOrderingProduct.discountRate,
+    order_status: 'Pending'
   };
 
+  let savedOrderNumber = generatedOrderNum;
+
+  // 1. Try saving to Flask Backend API if online
   try {
     const res = await fetch(`${API_URL}/orders`, {
       method: 'POST',
@@ -394,23 +419,50 @@ async function submitOrder(e) {
     });
     
     const data = await res.json();
-
     if (data.status === 'success') {
-      closeOrderModal();
-      cartCount++;
-      document.getElementById('cartCount').textContent = cartCount;
-      showToast(`Order ${data.order_number} saved to Database! 🎉`);
-      
-      // Also open WhatsApp pre-filled confirmation
-      const waMsg = encodeURIComponent(`Hello Samrina Boutique! I have placed Order ${data.order_number} for "${currentOrderingProduct.title}" (Size: ${currentOrderingProduct.selectedSize}${customMeasurements ? ', ' + customMeasurements : ''}). My Name: ${name}, Address: ${address}.`);
-      let waUrl = `https://wa.me/${BOUTIQUE_WHATSAPP_NUMBER}?text=${waMsg}`;
-      setTimeout(() => {
-        window.open(waUrl, '_blank');
-      }, 1000);
+      savedOrderNumber = data.order_number;
     }
   } catch (err) {
-    alert('Could not connect to database backend.');
+    console.warn('Backend API offline (GitHub Pages mode). Saving order to Local Storage & WhatsApp.');
   }
+
+  // 2. Save order to LocalStorage for GitHub Pages Admin/Tracking
+  let localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+  localOrders.unshift(orderPayload);
+  localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
+
+  // 3. Close Modal & Update Cart UI
+  closeOrderModal();
+  cartCount++;
+  document.getElementById('cartCount').textContent = cartCount;
+  showToast(`Order #${savedOrderNumber} Confirmed! Opening WhatsApp... 🛍️`);
+
+  // 4. Format & Trigger Direct WhatsApp Order Message
+  const formattedPriceText = currentCurrency === 'USD'
+    ? `$${Math.round(finalPrice * PKR_TO_USD_RATE).toLocaleString()}`
+    : `PKR ${finalPrice.toLocaleString()}`;
+
+  const waText = 
+`🛍️ *NEW ORDER - SAMRINA BOUTIQUE* 🛍️
+
+*Order No:* ${savedOrderNumber}
+*Dress:* ${currentOrderingProduct.title}
+*Size:* ${currentOrderingProduct.selectedSize} ${customMeasurements ? ' (' + customMeasurements + ')' : ''}
+*Total Bill:* ${formattedPriceText} ${currentOrderingProduct.discountRate > 0 ? '(Promo Discount Applied!)' : ''}
+
+----------------------------------------
+👤 *CUSTOMER DETAILS:*
+*Name:* ${name}
+*Phone:* ${phone}
+*Address:* ${address}
+
+_Please confirm my order and stitching schedule. Thank you!_`;
+
+  const waUrl = `https://wa.me/${BOUTIQUE_WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+  
+  setTimeout(() => {
+    window.open(waUrl, '_blank');
+  }, 800);
 }
 
 // 11. Live Order Tracking Modal Handlers
@@ -423,26 +475,42 @@ function closeTrackModal() {
 }
 
 async function searchTrackOrder() {
-  const orderNum = document.getElementById('trackNumberInput').value;
+  const orderNum = (document.getElementById('trackNumberInput').value || '').trim();
   if (!orderNum) return;
 
+  // 1. Try REST API tracking
   try {
     const res = await fetch(`${API_URL}/orders/track/${encodeURIComponent(orderNum)}`);
     const data = await res.json();
 
     if (data.status === 'success') {
       const ord = data.data;
-      document.getElementById('tOrdNum').textContent = `Order #${ord.order_number}`;
-      document.getElementById('tStatusBadge').textContent = ord.order_status;
-      document.getElementById('tCustName').textContent = ord.customer_name;
-      document.getElementById('tDress').textContent = `${ord.product_title} (${ord.size})`;
-      document.getElementById('tPrice').textContent = `PKR ${ord.total_price_pkr.toLocaleString()}`;
-
-      document.getElementById('trackResultBox').style.display = 'block';
+      displayTrackResult(ord);
+      return;
     }
   } catch (err) {
+    console.warn('API tracking unavailable, searching local storage.');
+  }
+
+  // 2. LocalStorage tracking fallback for GitHub Pages
+  const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+  const matched = localOrders.find(o => o.order_number.toLowerCase() === orderNum.toLowerCase());
+
+  if (matched) {
+    displayTrackResult(matched);
+  } else {
     showToast('Order number not found. Check again!');
   }
+}
+
+function displayTrackResult(ord) {
+  document.getElementById('tOrdNum').textContent = `Order #${ord.order_number}`;
+  document.getElementById('tStatusBadge').textContent = ord.order_status || 'Confirmed';
+  document.getElementById('tCustName').textContent = ord.customer_name;
+  document.getElementById('tDress').textContent = `${ord.product_title} (${ord.size})`;
+  document.getElementById('tPrice').textContent = `PKR ${ord.total_price_pkr.toLocaleString()}`;
+
+  document.getElementById('trackResultBox').style.display = 'block';
 }
 
 // 12. Toast Notification Handler
