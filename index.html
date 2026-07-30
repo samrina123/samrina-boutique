@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Custom Stylesheet with Cache-Busting -->
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -21,13 +21,13 @@
   <div class="announcement-bar">
     <div class="container">
       <div class="announcement-text">
-        <i class="fa-solid fa-sparkles"></i> Free Express Shipping | Use Code <strong>SAMRINA10</strong> for 10% OFF
+        <i class="fa-solid fa-crown" style="color: var(--gold-primary); margin-right: 4px;"></i> <strong>SAMRINA COUTURE</strong> | Free Nationwide Delivery & Bespoke Tailoring | Code: <strong style="color: var(--gold-primary);">SAMRINA10</strong>
       </div>
       <div class="currency-selector">
-        <button onclick="openTrackModal()" style="color: var(--gold-accent); background:none; border:none; cursor:pointer; font-weight:600; font-size:0.8rem; margin-right:15px;"><i class="fa-solid fa-truck-fast"></i> Track Order</button>
-        <span>Currency:</span>
+        <button onclick="document.getElementById('trackModal').classList.add('active')" style="color: var(--gold-primary); background:none; border:none; cursor:pointer; font-weight:600; font-size:0.8rem; margin-right:15px;"><i class="fa-solid fa-truck-fast"></i> Track Order</button>
+        <span style="opacity: 0.8;">Currency:</span>
         <button class="currency-btn active" id="btn-pkr" onclick="setCurrency('PKR')">PKR (₨)</button>
-        <span>|</span>
+        <span style="opacity: 0.4;">|</span>
         <button class="currency-btn" id="btn-usd" onclick="setCurrency('USD')">USD ($)</button>
       </div>
     </div>
@@ -37,8 +37,11 @@
   <header class="header">
     <div class="container">
       <nav class="navbar">
-        <!-- Logo -->
-        <a href="#" class="logo">Samrina <span>Boutique</span></a>
+        <!-- Logo with Royal Crest Emblem -->
+        <a href="#" class="logo">
+          <span class="logo-brand">Samrina</span>
+          <span class="logo-tagline">HAUTE COUTURE</span>
+        </a>
 
         <!-- Main Navigation Links -->
         <ul class="nav-menu" id="navMenu">
@@ -523,6 +526,6 @@
   </div>
 
   <!-- Custom Script with Cache Bashing -->
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
