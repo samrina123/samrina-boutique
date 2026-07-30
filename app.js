@@ -130,12 +130,12 @@ function renderProductsGrid(products) {
       ? `$${Math.round(p.price_pkr * PKR_TO_USD_RATE).toLocaleString()}`
       : `PKR ${p.price_pkr.toLocaleString()}`;
 
-    const isHearted = wishlistItems.some(item => item.title === p.title);
+    const isHearted = wishlistItems.some(item => item.id === p.id || item.title === p.title);
     card.innerHTML = `
       <div class="product-img-wrapper">
         <span class="product-tag">${p.stock_status || 'EXCLUSIVE'}</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="toggleWishlist(this, '${p.title.replace(/'/g, "\\'")}')"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
+        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
@@ -206,11 +206,12 @@ function renderSimilarProducts(displayedProducts, category, search) {
       ? `$${Math.round(p.price_pkr * PKR_TO_USD_RATE).toLocaleString()}`
       : `PKR ${p.price_pkr.toLocaleString()}`;
 
+    const isHearted = wishlistItems.some(item => item.id === p.id || item.title === p.title);
     card.innerHTML = `
       <div class="product-img-wrapper">
         <span class="product-tag" style="background:var(--gold-primary); color:var(--primary-emerald);">SIMILAR ITEM</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></button>
+        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
@@ -322,8 +323,8 @@ function updateBadges() {
 }
 
 // 7. Wishlist Heart Toggle & Drawer Sync
-function toggleWishlist(btnEl, productTitle) {
-  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === productTitle);
+function handleWishlistClick(btnEl, productId) {
+  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.id === productId);
   if (!prod && btnEl) {
     const card = btnEl.closest('.product-card');
     if (card) {
@@ -334,32 +335,32 @@ function toggleWishlist(btnEl, productTitle) {
     }
   }
   if (!prod) {
-    prod = { title: productTitle || 'Designer Dress', price_pkr: 25000, image_url: 'images/emerald_gown.jpg', category: 'formal', fabric: 'Luxury Silk' };
+    prod = { id: productId || Date.now(), title: 'Designer Dress', price_pkr: 25000, image_url: 'images/emerald_gown.jpg', category: 'formal', fabric: 'Luxury Silk' };
   }
 
-  const existingIndex = wishlistItems.findIndex(item => item.title === prod.title);
-  
+  const existingIndex = wishlistItems.findIndex(item => item.id === prod.id || item.title === prod.title);
+  const icon = btnEl ? btnEl.querySelector('i') : null;
+
   if (existingIndex > -1) {
     wishlistItems.splice(existingIndex, 1);
-    if (btnEl) {
-      btnEl.classList.remove('active');
-      const icon = btnEl.querySelector('i');
-      if (icon) icon.className = 'fa-regular fa-heart';
-    }
+    if (btnEl) btnEl.classList.remove('active');
+    if (icon) icon.className = 'fa-regular fa-heart';
     showToast('Removed from wishlist');
   } else {
     wishlistItems.push(prod);
-    if (btnEl) {
-      btnEl.classList.add('active');
-      const icon = btnEl.querySelector('i');
-      if (icon) icon.className = 'fa-solid fa-heart';
-    }
+    if (btnEl) btnEl.classList.add('active');
+    if (icon) icon.className = 'fa-solid fa-heart';
     showToast('Saved to wishlist ❤️');
   }
 
   localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
   updateBadges();
   renderWishlistDrawer();
+}
+
+function toggleWishlist(btnEl, productTitle) {
+  const prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === productTitle);
+  handleWishlistClick(btnEl, prod ? prod.id : 1);
 }
 
 // Wishlist Side Drawer Handlers
