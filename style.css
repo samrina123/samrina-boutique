@@ -977,3 +977,115 @@ img {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
 }
+
+/* Side Drawers (Wishlist & Cart) */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.drawer-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 390px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--white);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.active {
+  right: 0;
+}
+
+.drawer-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--ivory-bg);
+}
+
+.drawer-body {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.drawer-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border-light);
+  background: var(--ivory-bg);
+}
+
+.drawer-item-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: var(--white);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.drawer-item-img {
+  width: 65px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.drawer-item-info {
+  flex-grow: 1;
+}
+
+.drawer-item-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-emerald);
+  margin-bottom: 4px;
+}
+
+.drawer-item-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold-primary);
+}
+
+.drawer-remove-btn {
+  background: none;
+  border: none;
+  color: #eb5757;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 6px;
+  transition: transform 0.2s;
+}
+
+.drawer-remove-btn:hover {
+  transform: scale(1.2);
+}
