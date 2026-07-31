@@ -518,25 +518,121 @@ function openTrackModal() {
   if (modal) modal.classList.add('active');
 }
 
-function searchTrackOrder() {
+async function searchTrackOrder() {
   const input = document.getElementById('trackOrderInput').value.trim();
   const box = document.getElementById('trackResultBox');
   if (!input) {
-    alert('Please enter your Order Number (e.g. SB-100201)');
+    alert('Please enter your Order Reference Number (e.g. SB-100201)');
     return;
   }
 
-  const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
-  const match = localOrders.find(o => o.order_number.toLowerCase() === input.toLowerCase());
+  let match = null;
+
+  // 1. Try fetching live order status from Flask API server
+  try {
+    const res = await fetch(`${API_URL}/orders`);
+    const data = await res.json();
+    if (data.status === 'success') {
+      match = data.data.find(o => 
+        (o.order_number && o.order_number.toLowerCase() === input.toLowerCase()) ||
+        String(o.id) === input
+      );
+    }
+  } catch (err) {}
+
+  // 2. Fallback to LocalStorage orders
+  if (!match) {
+    const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+    match = localOrders.find(o => 
+      (o.order_number && o.order_number.toLowerCase() === input.toLowerCase()) ||
+      String(o.id) === input
+    );
+  }
 
   if (match) {
-    document.getElementById('tOrdNum').innerText = `Order #${match.order_number}`;
-    document.getElementById('tCustName').innerText = match.customer_name;
-    document.getElementById('tDress').innerText = match.dress_title;
-    document.getElementById('tPrice').innerText = `PKR ${match.total_price_pkr.toLocaleString()}`;
+    const ordNum = match.order_number || (`SB-${match.id}`);
+    const custName = match.customer_name || 'Valued Customer';
+    const phone = match.customer_phone || match.phone || 'N/A';
+    const dress = match.product_title || match.dress_title || 'Haute Couture Dress';
+    const size = match.size || 'M';
+    const price = match.total_price_pkr || 0;
+    const address = match.customer_address || match.delivery_address || 'Express Doorstep Delivery';
+    const status = match.order_status || match.status || 'Pending';
+    const measurements = match.custom_measurements || '';
+
+    const elOrd = document.getElementById('tOrdNum');
+    const elCust = document.getElementById('tCustName');
+    const elPhone = document.getElementById('tPhone');
+    const elDress = document.getElementById('tDress');
+    const elSize = document.getElementById('tSize');
+    const elPrice = document.getElementById('tPrice');
+    const elAddr = document.getElementById('tAddress');
+
+    if (elOrd) elOrd.innerText = `Order #${ordNum}`;
+    if (elCust) elCust.innerText = custName;
+    if (elPhone) elPhone.innerText = phone;
+    if (elDress) elDress.innerText = dress;
+    if (elSize) elSize.innerText = size;
+    if (elPrice) elPrice.innerText = `PKR ${price.toLocaleString()}`;
+    if (elAddr) elAddr.innerText = address;
+
+    // Measurements row
+    const mRow = document.getElementById('tMeasurementsRow');
+    const mVal = document.getElementById('tMeasurements');
+    if (measurements && mRow && mVal) {
+      mVal.innerText = measurements;
+      mRow.style.display = 'block';
+    } else if (mRow) {
+      mRow.style.display = 'none';
+    }
+
+    // Status Badge & Timeline Progress Highlighting
+    const badge = document.getElementById('tStatusBadge');
+    if (badge) {
+      badge.innerText = status.toUpperCase();
+      let badgeBg = '#0F382C';
+      if (status.includes('Pending')) badgeBg = '#D4AF37';
+      if (status.includes('Confirmed')) badgeBg = '#2980b9';
+      if (status.includes('Tailoring')) badgeBg = '#8e44ad';
+      if (status.includes('Dispatched')) badgeBg = '#e67e22';
+      if (status.includes('Delivered')) badgeBg = '#27ae60';
+      badge.style.background = badgeBg;
+      badge.style.color = '#fff';
+    }
+
+    // Reset Timeline Steps
+    const steps = ['verified', 'tailoring', 'dispatched', 'delivered'];
+    steps.forEach(s => {
+      const stepDiv = document.getElementById(`step-${s}`);
+      const iconDiv = document.getElementById(`icon-${s}`);
+      if (stepDiv) stepDiv.style.opacity = '0.35';
+      if (iconDiv) {
+        iconDiv.style.background = '#ccc';
+        iconDiv.style.color = '#fff';
+      }
+    });
+
+    // Highlight active and completed timeline steps based on status
+    let activeLevel = 1;
+    const stLower = status.toLowerCase();
+    if (stLower.includes('pending') || stLower.includes('verified') || stLower.includes('confirmed')) activeLevel = 1;
+    if (stLower.includes('tailoring')) activeLevel = 2;
+    if (stLower.includes('dispatched')) activeLevel = 3;
+    if (stLower.includes('delivered')) activeLevel = 4;
+
+    for (let i = 0; i < activeLevel; i++) {
+      const stepDiv = document.getElementById(`step-${steps[i]}`);
+      const iconDiv = document.getElementById(`icon-${steps[i]}`);
+      if (stepDiv) stepDiv.style.opacity = '1';
+      if (iconDiv) {
+        iconDiv.style.background = '#0F382C';
+        iconDiv.style.color = '#D4AF37';
+      }
+    }
+
     if (box) box.style.display = 'block';
   } else {
-    alert('Order reference not found. Please check your order number or WhatsApp confirmation.');
+    alert('Order reference number not found. Please check your order reference (e.g., SB-775555) or WhatsApp receipt.');
   }
 }
 
