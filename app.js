@@ -186,14 +186,14 @@ function renderProductsGrid(products) {
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
-        <h3 class="product-title" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})" style="cursor:pointer;">${p.title}</h3>
+        <h3 class="product-title" onclick="openOrderModalById(event, ${p.id})" style="cursor:pointer;">${p.title}</h3>
         <div class="product-price-row">
           <span class="product-price">${formattedPrice}</span>
           <div style="display: flex; gap: 6px; width: 100%; margin-top: 8px;">
-            <button class="order-now-btn" style="flex: 1; padding: 7px 10px; font-size: 0.75rem; justify-content: center; background: var(--gold-primary); color: var(--dark-charcoal);" onclick="addToCart('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr}, 'M')">
+            <button type="button" class="order-now-btn" style="flex: 1; padding: 7px 10px; font-size: 0.75rem; justify-content: center; background: var(--gold-primary); color: var(--dark-charcoal);" onclick="addToCartById(event, ${p.id}, 'M')">
               <i class="fa-solid fa-bag-shopping"></i> Add to Bag
             </button>
-            <button class="order-now-btn" style="flex: 1; padding: 7px 10px; font-size: 0.75rem; justify-content: center;" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
+            <button type="button" class="order-now-btn" style="flex: 1; padding: 7px 10px; font-size: 0.75rem; justify-content: center;" onclick="openOrderModalById(event, ${p.id})">
               Order / Details <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
@@ -334,12 +334,21 @@ function closeAllDrawers() {
   closeCartDrawer();
 }
 
+function addToCartById(event, productId, size = 'M') {
+  if (event) {
+    if (event.stopPropagation) event.stopPropagation();
+    if (event.preventDefault) event.preventDefault();
+  }
+  const prod = getMergedProducts().find(p => p.id === productId || String(p.id) === String(productId)) || FULL_PRODUCT_CATALOGUE[0];
+  addToCart(prod.title, prod.price_pkr, size);
+}
+
 function addToCart(title, pricePkr, size = 'M') {
-  const prod = getMergedProducts().find(p => p.title === title) || { title, price_pkr: pricePkr, image_url: 'images/hero_banner.jpg' };
+  const prod = getMergedProducts().find(p => p.title === title || String(p.id) === String(title)) || { title, price_pkr: pricePkr, image_url: 'images/hero_banner.jpg', category: 'saree' };
   cartItems.push({ ...prod, selectedSize: size, cartId: Date.now() + Math.random() });
   localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
   updateBadges();
-  showToast('Item added to Shopping Bag! 🛍️');
+  showToast(`"${prod.title}" added to Shopping Bag! 🛍️`);
   closeOrderModal();
   openCartDrawer();
 }
@@ -403,6 +412,15 @@ function selectSize(btnElement, sizeStr) {
   if (customBox) {
     customBox.style.display = sizeStr === 'Bespoke Custom Fit' ? 'block' : 'none';
   }
+}
+
+function openOrderModalById(event, productId) {
+  if (event) {
+    if (event.stopPropagation) event.stopPropagation();
+    if (event.preventDefault) event.preventDefault();
+  }
+  const prod = getMergedProducts().find(p => p.id === productId || String(p.id) === String(productId)) || FULL_PRODUCT_CATALOGUE[0];
+  openOrderModal(prod.title, prod.price_pkr);
 }
 
 function openOrderModal(title, pricePkr) {
