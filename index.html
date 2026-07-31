@@ -175,19 +175,23 @@
         <div style="background: var(--white); border: 1px solid var(--border-light); padding: 35px; border-radius: 20px; box-shadow: var(--shadow-sm);">
           <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--dark-charcoal); margin-bottom: 20px;">Send Us an Inquiry</h3>
           
-          <form onsubmit="alert('Thank you! Your inquiry has been sent to Samrina Boutique customer care.'); event.preventDefault(); this.reset();">
+          <form onsubmit="submitInquiry(event)">
             <div style="display: flex; flex-direction: column; gap: 14px;">
               <div>
                 <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Your Name</label>
-                <input type="text" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="Full Name" required>
+                <input type="text" id="inquiryName" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="Full Name" required>
               </div>
               <div>
                 <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Phone / WhatsApp Number</label>
-                <input type="tel" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="0300 1234567" required>
+                <input type="tel" id="inquiryPhone" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="0300 1234567" required>
+              </div>
+              <div>
+                <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Email Address (Optional)</label>
+                <input type="email" id="inquiryEmail" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="client@example.com">
               </div>
               <div>
                 <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Message / Custom Inquiry</label>
-                <textarea class="search-input" style="width: 100%; border-radius: 8px; padding: 10px; height: 90px; resize: none;" placeholder="How can we help you with your order?" required></textarea>
+                <textarea id="inquiryMessage" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px; height: 90px; resize: none;" placeholder="How can we help you with your order?" required></textarea>
               </div>
               <button type="submit" class="btn-primary" style="justify-content: center; margin-top: 10px;">Send Message <i class="fa-solid fa-paper-plane"></i></button>
             </div>
