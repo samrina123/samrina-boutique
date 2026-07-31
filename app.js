@@ -132,7 +132,7 @@ function renderProductsGrid(products) {
 
     const isHearted = wishlistItems.some(item => item.id === p.id || item.title === p.title);
     card.innerHTML = `
-      <div class="product-img-wrapper">
+      <div class="product-img-wrapper" onclick="window.location.href='product-detail.html?id=${p.id}'" style="cursor:pointer;">
         <span class="product-tag">${p.stock_status || 'EXCLUSIVE'}</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
         <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(event, this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart" ${isHearted ? 'style="color:#e74c3c;"' : ''}></i></button>
@@ -147,12 +147,12 @@ function renderProductsGrid(products) {
           <i class="fa-solid fa-star"></i>
           <span>(${p.rating || 5.0})</span>
         </div>
-        <h3 class="product-title">${p.title}</h3>
+        <h3 class="product-title"><a href="product-detail.html?id=${p.id}">${p.title}</a></h3>
         <div class="product-price-row">
           <div class="product-price" data-price-pkr="${p.price_pkr}">${formattedPrice}</div>
-          <button class="whatsapp-order-btn" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
-            <i class="fa-solid fa-bag-shopping"></i> Order Now
-          </button>
+          <a href="product-detail.html?id=${p.id}" class="whatsapp-order-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-bag-shopping"></i> View Details
+          </a>
         </div>
       </div>
     `;
