@@ -95,6 +95,15 @@ function toggleMobileMenu() {
   if (navMenu) navMenu.classList.toggle('active');
 }
 
+function scrollToCategory(cat) {
+  const collectionsSec = document.getElementById('collections');
+  if (collectionsSec) {
+    collectionsSec.scrollIntoView({ behavior: 'smooth' });
+  }
+  const btn = document.querySelector(`.filter-btn[onclick*="${cat}"]`);
+  filterCategory(cat, btn);
+}
+
 // 2. Fetch Live Products or Filter Client Dataset
 async function loadProducts(category = 'all', search = '') {
   const grid = document.getElementById('productsGrid');
