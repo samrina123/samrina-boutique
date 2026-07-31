@@ -505,8 +505,8 @@ function submitOrder(method) {
   }
 
   const orderNum = 'SB-' + Math.floor(100000 + Math.random() * 900000);
-
   const mainTitle = orderItems.length === 1 ? orderItems[0].title : `Multi-Item Order (${orderItems.length} Dresses)`;
+
   const newOrderObj = {
     order_number: orderNum,
     customer_name: name,
@@ -526,18 +526,18 @@ function submitOrder(method) {
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   };
 
-  // Save to LocalStorage
+  // Save to LocalStorage immediately
   const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
   localOrders.unshift(newOrderObj);
   localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
 
-  // Try API POST
+  // Background non-blocking API POST
   try {
     fetch(`${API_URL}/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newOrderObj)
-    });
+    }).catch(() => {});
   } catch (err) {}
 
   // Format WhatsApp Message Text
@@ -566,16 +566,13 @@ Thank you! Please confirm my order placement.`;
   localStorage.setItem('sb_cart_items', JSON.stringify([]));
   updateBadges();
   renderCartDrawer();
+  closeOrderModal();
 
   const waUrl = `https://wa.me/923038873030?text=${encodeURIComponent(waText)}`;
-  closeOrderModal();
-  showToast('Order Placed Successfully! Opening WhatsApp... 🚀');
+  showToast('Redirecting to WhatsApp... 🚀');
   
-  // Instant redirect for WhatsApp App & Web
-  const win = window.open(waUrl, '_blank');
-  if (!win || win.closed || typeof win.closed === 'undefined') {
-    window.location.href = waUrl;
-  }
+  // Direct location redirect guarantees 100% execution without popup blocker interference
+  window.location.href = waUrl;
 }
 
 // --- 6b. CUSTOMER INQUIRY SUBMISSION HANDLER ---
