@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Custom Stylesheet with Cache-Busting -->
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -21,11 +21,12 @@
   <div class="announcement-bar">
     <div class="container">
       <div class="announcement-text">
-        <i class="fa-solid fa-crown" style="color: var(--gold-primary); margin-right: 4px;"></i> <strong>SAMRINA COUTURE</strong> | Free Nationwide Delivery & Bespoke Tailoring | Code: <strong style="color: var(--gold-primary);">SAMRINA10</strong>
+        <i class="fa-solid fa-crown" style="color: var(--gold-primary); margin-right: 6px;"></i> <strong>SAMRINA BOUTIQUE</strong> | Free Express Delivery & Bespoke Tailoring | Code: <strong style="color: var(--gold-primary);">SAMRINA10</strong>
       </div>
       <div class="currency-selector">
-        <button onclick="document.getElementById('trackModal').classList.add('active')" style="color: var(--gold-primary); background:none; border:none; cursor:pointer; font-weight:600; font-size:0.8rem; margin-right:15px;"><i class="fa-solid fa-truck-fast"></i> Track Order</button>
-        <span style="opacity: 0.8;">Currency:</span>
+        <button onclick="document.getElementById('trackModal').classList.add('active')" class="top-link-btn"><i class="fa-solid fa-truck-fast"></i> Track Order</button>
+        <a href="admin.html" target="_blank" class="top-link-btn" style="color: var(--gold-primary); margin-right: 15px;"><i class="fa-solid fa-user-shield"></i> Admin Portal</a>
+        <span style="opacity: 0.7;">Currency:</span>
         <button class="currency-btn active" id="btn-pkr" onclick="setCurrency('PKR')">PKR (₨)</button>
         <span style="opacity: 0.4;">|</span>
         <button class="currency-btn" id="btn-usd" onclick="setCurrency('USD')">USD ($)</button>
@@ -33,17 +34,61 @@
     </div>
   </div>
 
-  <!-- Header / Navigation Bar -->
-  <header class="header">
-    <div class="container">
-      <nav class="navbar">
-        <!-- Logo with Royal Crest Emblem -->
-        <a href="#" class="logo">
-          <span class="logo-brand">Samrina</span>
-          <span class="logo-tagline">HAUTE COUTURE</span>
+  <!-- Header / Navigation Bar (Concept 1: Centered Logo & 2-Tier Layout) -->
+  <header class="header header-concept1">
+    <!-- Main Branding & Utilities Row (Tier 1) -->
+    <div class="header-main-row">
+      <div class="container header-flex-row">
+        <!-- Left: Search Capsule Box -->
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search sarees, velvet, silk..." onkeyup="filterProducts()" list="searchSuggestions">
+          <datalist id="searchSuggestions">
+            <option value="Saree"></option>
+            <option value="Banarasi Saree"></option>
+            <option value="Chiffon Saree"></option>
+            <option value="Velvet"></option>
+            <option value="Sequin"></option>
+            <option value="Silk"></option>
+            <option value="Organza"></option>
+            <option value="Zardozi"></option>
+            <option value="Bridal Lehenga"></option>
+            <option value="Walima Gown"></option>
+            <option value="Shalwar Kameez"></option>
+            <option value="Co-ord Set"></option>
+            <option value="Lawn"></option>
+          </datalist>
+        </div>
+
+        <!-- Center: Royal Centered Monogram Logo -->
+        <a href="#" class="logo-centered">
+          <span class="logo-crown-icon">👑</span>
+          <span class="logo-brand-name">SAMRINA</span>
+          <span class="logo-sub-tagline">BOUTIQUE HAUTE COUTURE</span>
         </a>
 
-        <!-- Main Navigation Links -->
+        <!-- Right: Actions (Wishlist, Cart, Mobile Toggle) -->
+        <div class="nav-actions">
+          <button class="action-icon-btn" title="Wishlist" onclick="openWishlistDrawer()">
+            <i class="fa-regular fa-heart"></i>
+            <span class="badge" id="wishlistCount">0</span>
+          </button>
+
+          <button class="action-icon-btn" title="Shopping Bag" onclick="openCartDrawer()">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="badge" id="cartCount">0</span>
+          </button>
+
+          <button class="mobile-toggle" id="mobileToggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Bar (Tier 2 - Zero Text Wrapping) -->
+    <nav class="category-nav-bar">
+      <div class="container">
         <ul class="nav-menu" id="navMenu">
           <li><a href="#" class="nav-link active" onclick="filterCategory('all')">Home</a></li>
           <li><a href="#collections" class="nav-link" onclick="filterCategory('saree')">Sarees</a></li>
@@ -52,60 +97,9 @@
           <li><a href="#collections" class="nav-link" onclick="filterCategory('pret')">Pret Wear</a></li>
           <li><a href="#collections" class="nav-link" onclick="filterCategory('formal')">Formals</a></li>
           <li><a href="#collections" class="nav-link" onclick="filterCategory('bridal')">Bridal Couture</a></li>
-          <li><a href="javascript:void(0)" onclick="openTrackModal()" class="nav-link"><i class="fa-solid fa-location-crosshairs"></i> Track Order</a></li>
-          <li><a href="admin.html" class="nav-link" style="color: var(--gold-primary); font-weight: 700;" target="_blank"><i class="fa-solid fa-user-shield"></i> Admin Portal</a></li>
         </ul>
-
-        <!-- Right Side Nav Actions -->
-        <div class="nav-actions">
-          <!-- Real-time Live Search Box with Smart Auto-Suggestions -->
-          <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search saree, velvet, silk, zardozi..." onkeyup="filterProducts()" list="searchSuggestions">
-            <datalist id="searchSuggestions">
-              <option value="Saree"></option>
-              <option value="Banarasi Saree"></option>
-              <option value="Chiffon Saree"></option>
-              <option value="Velvet"></option>
-              <option value="Sequin"></option>
-              <option value="Silk"></option>
-              <option value="Organza"></option>
-              <option value="Zardozi"></option>
-              <option value="Bridal Lehenga"></option>
-              <option value="Walima Gown"></option>
-              <option value="Peshwas"></option>
-              <option value="Shalwar Kameez"></option>
-              <option value="Patiala Shalwar"></option>
-              <option value="Tulip Shalwar"></option>
-              <option value="Cutwork Palazzo"></option>
-              <option value="Co-ord Set"></option>
-              <option value="Lawn"></option>
-              <option value="Linen"></option>
-              <option value="Khaddar"></option>
-              <option value="Mirror Work"></option>
-              <option value="Pearl"></option>
-            </datalist>
-          </div>
-
-          <!-- Wishlist Heart -->
-          <button class="action-icon-btn" title="Wishlist" onclick="openWishlistDrawer()">
-            <i class="fa-regular fa-heart"></i>
-            <span class="badge" id="wishlistCount">0</span>
-          </button>
-
-          <!-- Shopping Cart Badge -->
-          <button class="action-icon-btn" title="Bag" onclick="openCartDrawer()">
-            <i class="fa-solid fa-bag-shopping"></i>
-            <span class="badge" id="cartCount">0</span>
-          </button>
-
-          <!-- Mobile Hamburger Toggle -->
-          <button class="mobile-toggle" id="mobileToggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-            <i class="fa-solid fa-bars-staggered"></i>
-          </button>
-        </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   </header>
 
   <!-- Hero Section -->
@@ -526,6 +520,6 @@
   </div>
 
   <!-- Custom Script with Cache Bashing -->
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
