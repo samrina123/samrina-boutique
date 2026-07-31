@@ -12,55 +12,68 @@ let cartCount = 0;
 let currentOrderingProduct = { title: '', pricePkr: 0, selectedSize: 'M', discountRate: 0 };
 let allProducts = [];
 
-// Full 36 Dataset (Used for instant client-side rendering & fallback)
+// Full Catalogue Dataset with All User-Uploaded Local Image Files
 const FULL_PRODUCT_CATALOGUE = [
-  // --- 1. SAREES COLLECTION (6 REAL USER-UPLOADED PAKISTANI SAREE PHOTOS) ---
+  // --- 1. SAREES COLLECTION ---
   { id: 1, title: "Midnight Black Striped Sequin Saree", category: "saree", fabric: "Georgette & Sequin Blouse", price_pkr: 32500, image_url: "images/saree_black_sequin.jpg", rating: 5.0, stock_status: "MUST HAVE" },
   { id: 2, title: "Royal Velvet Heavy Embroidered Saree", category: "saree", fabric: "Pure Velvet & Puff Sleeves", price_pkr: 42000, image_url: "images/saree_velvet_black.jpg", rating: 5.0, stock_status: "HOT SELLER" },
   { id: 3, title: "Teal Emerald Cutwork Net Saree", category: "saree", fabric: "Net Lace & Silk Inner", price_pkr: 29500, image_url: "images/saree_teal_net.jpg", rating: 4.9, stock_status: "NEW ARRIVAL" },
   { id: 4, title: "Champagne Gold Tissue Bridal Saree", category: "saree", fabric: "Heavy Zardozi Tissue Silk", price_pkr: 48000, image_url: "images/saree_gold_tissue.jpg", rating: 5.0, stock_status: "BRIDAL SAREE" },
   { id: 5, title: "Crimson Red Silk Classic Saree", category: "saree", fabric: "Pure Silk & Full Sleeves", price_pkr: 26000, image_url: "images/saree_crimson_silk.jpg", rating: 4.8, stock_status: "POPULAR" },
   { id: 6, title: "Emerald Green Satin Silk Saree", category: "saree", fabric: "Satin Silk & Sequin Blouse", price_pkr: 31000, image_url: "images/saree_emerald.jpg", rating: 5.0, stock_status: "EXCLUSIVE" },
+  { id: 37, title: "Noir Onyx Sheer Chiffon Saree", category: "saree", fabric: "Pure Chiffon & Embroidery", price_pkr: 28500, image_url: "images/saree_black.jpg", rating: 4.9, stock_status: "HAUTE SAREE" },
+  { id: 38, title: "Royal Blue Sapphire Satin Saree", category: "saree", fabric: "Royal Satin Silk", price_pkr: 34000, image_url: "images/saree_blue.jpg", rating: 4.8, stock_status: "ROYAL COUTURE" },
+  { id: 39, title: "Pure Gold Embroidered Zari Saree", category: "saree", fabric: "Handcrafted Zari Silk", price_pkr: 45000, image_url: "images/saree_gold.jpg", rating: 5.0, stock_status: "BRIDAL SAREE" },
+  { id: 40, title: "Deep Maroon Banarasi Brocade Saree", category: "saree", fabric: "Banarasi Woven Brocade", price_pkr: 39000, image_url: "images/saree_maroon.jpg", rating: 4.9, stock_status: "TRADITIONAL" },
 
-  // --- 2. TRADITIONAL SHALWAR KAMEEZ (REAL USER-UPLOADED PAKISTANI SHALWAR KAMEEZ PHOTOS) ---
+  // --- 2. TRADITIONAL SHALWAR KAMEEZ ---
   { id: 7, title: "Sky Blue Printed Kurti & White Patiala Shalwar", category: "shalwar", fabric: "Pure Lawn & Cotton Shalwar", price_pkr: 8500, image_url: "images/shalwar_skyblue_white.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 8, title: "Crimson Red Silk Scalloped Shalwar Suit", category: "shalwar", fabric: "Raw Silk & Organza Dupatta", price_pkr: 11200, image_url: "images/shalwar_crimson_red.jpg", rating: 5.0, stock_status: "TRENDING" },
   { id: 9, title: "Midnight Black Embroidered Kurti Shalwar", category: "shalwar", fabric: "Cotton Satin & Threadwork", price_pkr: 9800, image_url: "images/shalwar_black_embroidered.jpg", rating: 4.9, stock_status: "BESTSELLER" },
   { id: 10, title: "Pink & Orange Printed Silk Dupatta Shalwar Suit", category: "shalwar", fabric: "Jacquard Silk 3-Piece", price_pkr: 12500, image_url: "images/shalwar_pink_orange.jpg", rating: 5.0, stock_status: "NEW ARRIVAL" },
   { id: 11, title: "Midnight Black Floral Coat Shalwar Suit", category: "shalwar", fabric: "Linen Blend Long Jacket Suit", price_pkr: 10800, image_url: "images/shalwar_black_jacket.jpg", rating: 4.8, stock_status: "TRADITIONAL LUXURY" },
   { id: 12, title: "Emerald Green Tulip Shalwar Suit", category: "shalwar", fabric: "Jacquard Cotton & Lace", price_pkr: 9500, image_url: "images/shalwar_tulip.jpg", rating: 4.7, stock_status: "POPULAR" },
+  { id: 41, title: "Heritage Black Velvet Embroidered Shalwar Suit", category: "shalwar", fabric: "Velvet Kurti & Silk Shalwar", price_pkr: 14000, image_url: "images/shalwar_black.jpg", rating: 5.0, stock_status: "ROYAL SHALWAR" },
+  { id: 42, title: "Dusty Rose Silk Scalloped Shalwar Suit", category: "shalwar", fabric: "Pure Silk & Organza Dupatta", price_pkr: 11800, image_url: "images/shalwar_rose.jpg", rating: 4.9, stock_status: "ELEGANT" },
 
-  // --- 3. CASUAL WEAR (REAL USER-UPLOADED PAKISTANI CASUAL WEAR PHOTOS) ---
+  // --- 3. CASUAL WEAR ---
   { id: 13, title: "Mustard Orange 2-Piece Linen Set", category: "casual", fabric: "Linen Tunic & Culottes", price_pkr: 5500, image_url: "images/casual_mustard_linen.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 14, title: "Plum Purple Georgette Tunic Suit", category: "casual", fabric: "Georgette Kurti & Trousers", price_pkr: 6200, image_url: "images/casual_plum_tunic.jpg", rating: 4.8, stock_status: "TRENDING" },
   { id: 15, title: "Midnight Black Cutwork Sleeve Suit", category: "casual", fabric: "Silk Kurti & Palazzo", price_pkr: 6800, image_url: "images/casual_black_cutwork.jpg", rating: 5.0, stock_status: "BESTSELLER" },
   { id: 16, title: "Navy Blue Embroidered Bell Sleeve Suit", category: "casual", fabric: "Embroidered Tunic & Tulip Pants", price_pkr: 7200, image_url: "images/casual_navy_embroidered.jpg", rating: 4.9, stock_status: "NEW ARRIVAL" },
   { id: 17, title: "Off-White Tribal Print Co-ord Set", category: "casual", fabric: "Linen Co-ord & Matching Bag", price_pkr: 5900, image_url: "images/casual_ivory_coord.jpg", rating: 5.0, stock_status: "EVERYDAY LUXURY" },
   { id: 18, title: "Pastel Pink Floral Lawn Casual Suit", category: "casual", fabric: "Pure Lawn 2-Piece", price_pkr: 4800, image_url: "images/casual_pink.jpg", rating: 4.7, stock_status: "CASUAL" },
+  { id: 43, title: "Olive Green Breathable Cotton Set", category: "casual", fabric: "Pure Cotton Tunic", price_pkr: 5200, image_url: "images/casual_olive.jpg", rating: 4.8, stock_status: "EVERYDAY" },
+  { id: 44, title: "Teal Breeze Embroidered Casual Suit", category: "casual", fabric: "Lawn Cotton 2-Piece", price_pkr: 5600, image_url: "images/casual_teal.jpg", rating: 4.9, stock_status: "FRESH ARRIVAL" },
 
-  // --- 4. PRET (READY TO WEAR) (REAL USER-UPLOADED PAKISTANI PRET PHOTOS) ---
+  // --- 4. PRET (READY TO WEAR) ---
   { id: 19, title: "Beige Silk Neckline Embroidered Pret Suit", category: "pret", fabric: "Raw Silk & Culottes", price_pkr: 14500, image_url: "images/pret_beige_embroidered.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 20, title: "Lavender Cutwork Lace Sharara Pret Suit", category: "pret", fabric: "Silk Chiffon & Flared Sharara", price_pkr: 18500, image_url: "images/pret_lavender_sharara.jpg", rating: 5.0, stock_status: "TRENDING" },
   { id: 21, title: "Ivory Silver Mirror Work Sharara Suit", category: "pret", fabric: "Embroidered Silk & Dupatta", price_pkr: 19200, image_url: "images/pret_ivory_silver.jpg", rating: 4.9, stock_status: "BESTSELLER" },
   { id: 22, title: "Magenta Festive Floral Print Pret Set", category: "pret", fabric: "3-Piece Silk Printed Suit", price_pkr: 16800, image_url: "images/pret_magenta_festive.jpg", rating: 5.0, stock_status: "NEW ARRIVAL" },
   { id: 23, title: "Beige & Maroon Embroidered Suit with Shawl", category: "pret", fabric: "Embroidered Lawn Silk & Shawl", price_pkr: 15900, image_url: "images/pret_beige_maroon.jpg", rating: 4.8, stock_status: "PRET LUXURY" },
   { id: 24, title: "Crimson Silk Kurti Pret Suit", category: "pret", fabric: "Pure Silk & Gold Borders", price_pkr: 13800, image_url: "images/maroon_pret.jpg", rating: 4.7, stock_status: "POPULAR" },
+  { id: 45, title: "Lawn Blossom 3-Piece Printed Pret", category: "pret", fabric: "Lawn & Silk Dupatta", price_pkr: 12900, image_url: "images/lawn_pret.jpg", rating: 4.9, stock_status: "PRINTED PRET" },
 
-  // --- 5. LUXURY FORMALS (REAL USER-UPLOADED PAKISTANI LUXURY FORMALS PHOTOS) ---
+  // --- 5. LUXURY FORMALS ---
   { id: 25, title: "Champagne Silk Floral Long Maxi Gown", category: "formal", fabric: "Pure Silk & Organza Dupatta", price_pkr: 28500, image_url: "images/formal_champagne_gown.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 26, title: "Off-White Silver Zardozi Anarkali Maxi", category: "formal", fabric: "Net Embroidery & Pearls", price_pkr: 34000, image_url: "images/formal_offwhite_zardozi.jpg", rating: 5.0, stock_status: "TRENDING" },
   { id: 27, title: "Lilac Purple Chiffon Sequined Long Suit", category: "formal", fabric: "Chiffon Sequins & Palazzo", price_pkr: 26500, image_url: "images/formal_lilac_chiffon.jpg", rating: 4.9, stock_status: "BESTSELLER" },
   { id: 28, title: "Gold Tissue Embroidered Peshwas Maxi", category: "formal", fabric: "Tissue Silk & Bordered Dupatta", price_pkr: 39500, image_url: "images/formal_gold_peshwas.jpg", rating: 5.0, stock_status: "NEW ARRIVAL" },
   { id: 29, title: "Blush Pink Embellished Formal Bridal Maxi", category: "formal", fabric: "Pure Net & Handcrafted Crystals", price_pkr: 42000, image_url: "images/formal_blush_maxi.jpg", rating: 5.0, stock_status: "ROYAL FORMAL" },
   { id: 30, title: "Emerald Grace Velvet Formal Gown", category: "formal", fabric: "Embroidered Velvet Zardozi", price_pkr: 31000, image_url: "images/emerald_gown.jpg", rating: 4.8, stock_status: "POPULAR" },
+  { id: 46, title: "Blush Rose Gold Handcrafted Formal Gown", category: "formal", fabric: "Organza Zardozi & Net Dupatta", price_pkr: 36000, image_url: "images/blush_formal.jpg", rating: 5.0, stock_status: "LUXURY FORMAL" },
+  { id: 47, title: "Chiffon Grace Embellished Formal Maxi", category: "formal", fabric: "Pure Chiffon & Crystal Embellishments", price_pkr: 33500, image_url: "images/chiffon_formal.jpg", rating: 4.9, stock_status: "FORMAL COUTURE" },
+  { id: 48, title: "Raw Silk Royal Embroidered Formal Set", category: "formal", fabric: "Raw Silk Zardozi & Velvet Dupatta", price_pkr: 37800, image_url: "images/rawsilk_formal.jpg", rating: 5.0, stock_status: "ROYAL FORMAL" },
 
-  // --- 6. BRIDAL COUTURE (REAL USER-UPLOADED PAKISTANI BRIDAL COUTURE PHOTOS) ---
+  // --- 6. BRIDAL COUTURE ---
   { id: 31, title: "Deep Maroon Velvet Zardozi Barat Lehenga", category: "bridal", fabric: "Heavy Velvet Zardozi & Double Dupatta", price_pkr: 195000, image_url: "images/bridal_maroon_velvet.jpg", rating: 5.0, stock_status: "ROYAL BRIDAL" },
   { id: 32, title: "Silver Diamond Embellished Walima Gown", category: "bridal", fabric: "Net Embroidery & Pearls Walima Dress", price_pkr: 165000, image_url: "images/bridal_silver_walima.jpg", rating: 5.0, stock_status: "EXCLUSIVE WALIMA" },
   { id: 33, title: "Royal Red Flared Barat Bridal Lehenga Set", category: "bridal", fabric: "Handcrafted Dabka & Silk Lehenga", price_pkr: 185000, image_url: "images/bridal_royalred_lehenga.jpg", rating: 5.0, stock_status: "BARAT COUTURE" },
   { id: 34, title: "Crimson Heritage Royal Barat Bridal Set", category: "bridal", fabric: "Traditional Zari & Organza Dupatta", price_pkr: 175000, image_url: "images/bridal_crimson_heritage.jpg", rating: 5.0, stock_status: "HERITAGE BRIDAL" },
   { id: 35, title: "Peach Rose Gold Train Bridal Maxi Gown", category: "bridal", fabric: "Handcrafted Crystals & Long Train", price_pkr: 170000, image_url: "images/bridal_peach_rosegold.jpg", rating: 5.0, stock_status: "LUXURY TRAIN GOWN" },
-  { id: 36, title: "Royale Gold Handcrafted Bridal Lehenga", category: "bridal", fabric: "Raw Silk Gold Zardozi Barat Set", price_pkr: 150000, image_url: "images/gold_bridal.jpg", rating: 4.9, stock_status: "POPULAR BRIDAL" }
+  { id: 36, title: "Royale Gold Handcrafted Bridal Lehenga", category: "bridal", fabric: "Raw Silk Gold Zardozi Barat Set", price_pkr: 150000, image_url: "images/gold_bridal.jpg", rating: 4.9, stock_status: "POPULAR BRIDAL" },
+  { id: 49, title: "Organza Dream Zardozi Bridal Barat Set", category: "bridal", fabric: "Organza Silk & Dabka Embroidery", price_pkr: 180000, image_url: "images/organza_bridal.jpg", rating: 5.0, stock_status: "BARAT BRIDAL" }
 ];
 
 // Master Dataset Merger (Full Catalogue + LocalStorage Custom Admin Products)
@@ -859,19 +872,12 @@ Please confirm my order and stitching schedule. Thank you!`;
   if (window.orderChannel === 'gmail') {
     showToast(`Order #${savedOrderNumber} Confirmed! Opening Gmail... 📧`);
     const targetEmail = 'samrinamughal456@gmail.com';
-    const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(`NEW ORDER #${savedOrderNumber} - ${currentOrderingProduct.title}`)}&body=${encodeURIComponent(orderText)}`;
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${targetEmail}&su=${encodeURIComponent(`NEW ORDER #${savedOrderNumber} - ${currentOrderingProduct.title}`)}&body=${encodeURIComponent(orderText)}`;
-    
-    setTimeout(() => {
-      const opened = window.open(gmailUrl, '_blank');
-      if (!opened) window.location.href = mailtoUrl;
-    }, 600);
+    window.location.href = gmailUrl;
   } else {
     showToast(`Order #${savedOrderNumber} Confirmed! Opening WhatsApp... 🛍️`);
     const waUrl = `https://wa.me/${BOUTIQUE_WHATSAPP_NUMBER}?text=${encodeURIComponent(orderText)}`;
-    setTimeout(() => {
-      window.open(waUrl, '_blank');
-    }, 600);
+    window.location.href = waUrl;
   }
 }
 
