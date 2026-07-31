@@ -186,12 +186,17 @@ function renderProductsGrid(products) {
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
-        <h3 class="product-title">${p.title}</h3>
+        <h3 class="product-title" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})" style="cursor:pointer;">${p.title}</h3>
         <div class="product-price-row">
           <span class="product-price">${formattedPrice}</span>
-          <button class="order-now-btn" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
-            Order / Details <i class="fa-solid fa-arrow-right"></i>
-          </button>
+          <div style="display: flex; gap: 6px; width: 100%; margin-top: 8px;">
+            <button class="order-now-btn" style="flex: 1; padding: 7px 10px; font-size: 0.75rem; justify-content: center; background: var(--gold-primary); color: var(--dark-charcoal);" onclick="addToCart('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr}, 'M')">
+              <i class="fa-solid fa-bag-shopping"></i> Add to Bag
+            </button>
+            <button class="order-now-btn" style="flex: 1; padding: 7px 10px; font-size: 0.75rem; justify-content: center;" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
+              Order / Details <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -243,8 +248,8 @@ function updateBadges() {
 }
 
 function handleWishlistClick(event, btnEl, productId) {
-  if (event) event.stopPropagation();
-  let prod = getMergedProducts().find(p => p.id === productId);
+  if (event && event.stopPropagation) event.stopPropagation();
+  let prod = getMergedProducts().find(p => p.id === productId || String(p.id) === String(productId));
   if (!prod) prod = FULL_PRODUCT_CATALOGUE[0];
 
   const existingIndex = wishlistItems.findIndex(item => item.id === prod.id || item.title === prod.title);
@@ -260,6 +265,15 @@ function handleWishlistClick(event, btnEl, productId) {
   updateBadges();
   renderProductsGrid(allProducts);
   renderWishlistDrawer();
+}
+
+function removeFromWishlist(productId) {
+  wishlistItems = wishlistItems.filter(item => String(item.id) !== String(productId));
+  localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
+  updateBadges();
+  renderProductsGrid(allProducts);
+  renderWishlistDrawer();
+  showToast('Removed from Wishlist');
 }
 
 function openWishlistDrawer() {
@@ -284,18 +298,18 @@ function renderWishlistDrawer() {
   if (!list) return;
 
   if (wishlistItems.length === 0) {
-    list.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">Your wishlist is empty.</div>';
+    list.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fa-solid fa-heart-crack" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.4;"></i><br>Your wishlist is empty.</div>';
     return;
   }
 
   list.innerHTML = wishlistItems.map(item => `
-    <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
-      <img src="${item.image_url}" alt="${item.title}" style="width: 65px; height: 80px; object-fit: cover; border-radius: 8px;">
-      <div style="flex-grow: 1;">
-        <h4 style="font-size: 0.9rem; font-family: var(--font-serif); color: var(--dark-charcoal); margin-bottom: 4px;">${item.title}</h4>
+    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
+      <img src="${item.image_url}" alt="${item.title}" style="width: 60px; height: 75px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" onerror="handleImageError(this, '${item.category || 'saree'}')">
+      <div style="flex-grow: 1; min-width: 0;">
+        <h4 style="font-size: 0.85rem; font-family: var(--font-serif); color: var(--dark-charcoal); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</h4>
         <span style="color: var(--primary-emerald); font-weight: 700; font-size: 0.85rem;">PKR ${item.price_pkr.toLocaleString()}</span>
       </div>
-      <button onclick="handleWishlistClick(null, null, ${item.id})" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.1rem;"><i class="fa-solid fa-trash"></i></button>
+      <button onclick="removeFromWishlist('${item.id}')" style="background: rgba(231, 76, 60, 0.1); border: none; color: #e74c3c; cursor: pointer; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem;" title="Remove"><i class="fa-solid fa-trash"></i></button>
     </div>
   `).join('');
 }
