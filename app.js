@@ -451,6 +451,80 @@ function ensureDrawersInDOM() {
     `;
     document.body.appendChild(wishlistDrawer);
   }
+
+  let orderModal = document.getElementById('orderModal');
+  if (!orderModal) {
+    orderModal = document.createElement('div');
+    orderModal.id = 'orderModal';
+    orderModal.className = 'modal-overlay';
+    orderModal.innerHTML = `
+      <div class="modal-card">
+        <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+        <div class="modal-info-col" style="width: 100%; padding: 30px;">
+          <h3 class="modal-title" id="orderModalTitle">Complete Your Order</h3>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <p class="modal-price" id="orderModalPrice" style="margin-bottom: 0;">PKR 0</p>
+            <span id="discountTag" style="display:none; background:#27ae60; color:#fff; font-size:0.75rem; font-weight:700; padding:4px 8px; border-radius:12px;">PROMO APPLIED</span>
+          </div>
+          
+          <form id="checkoutForm" onsubmit="submitOrder(event)">
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 0.85rem; font-weight: 600;">Sizing Option:</label>
+                <div class="size-options" style="margin-top: 6px;">
+                  <button type="button" class="size-btn" onclick="selectSize('S', this)">S</button>
+                  <button type="button" class="size-btn active" onclick="selectSize('M', this)">M</button>
+                  <button type="button" class="size-btn" onclick="selectSize('L', this)">L</button>
+                  <button type="button" class="size-btn" onclick="selectSize('XL', this)">XL</button>
+                  <button type="button" class="size-btn" onclick="toggleCustomSizing(this)">Custom Stitching</button>
+                </div>
+              </div>
+
+              <div id="customSizingBox" style="display: none; background: var(--ivory-bg); padding: 14px; border-radius: 12px; border: 1px solid var(--border-light);">
+                <p style="font-size: 0.8rem; font-weight: 700; color: var(--primary-emerald); margin-bottom: 8px;"><i class="fa-solid fa-tape"></i> Custom Measurements (in Inches):</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <input type="text" id="mChest" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Chest (e.g. 36 in)">
+                  <input type="text" id="mWaist" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Waist (e.g. 30 in)">
+                  <input type="text" id="mHips" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Hips (e.g. 40 in)">
+                  <input type="text" id="mLength" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Shirt Length (e.g. 48 in)">
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="promoInput" class="search-input" style="flex-grow: 1; border-radius: 8px;" placeholder="Promo code (e.g. SAMRINA10)">
+                <button type="button" class="btn-outline" onclick="applyPromoCode()" style="padding: 8px 16px; font-size: 0.85rem;">Apply</button>
+              </div>
+              
+              <div>
+                <label style="font-size: 0.85rem; font-weight: 600;">Full Name *</label>
+                <input type="text" id="custName" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="e.g. Fatima Ali" required>
+              </div>
+              
+              <div>
+                <label style="font-size: 0.85rem; font-weight: 600;">Phone / WhatsApp *</label>
+                <input type="tel" id="custPhone" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="e.g. 0300 1234567" required>
+              </div>
+
+              <div>
+                <label style="font-size: 0.85rem; font-weight: 600;">Delivery Address *</label>
+                <textarea id="custAddress" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px; height: 60px; resize: none;" placeholder="House number, Street, City" required></textarea>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button type="submit" onclick="window.orderChannel='whatsapp'" class="btn-primary" style="width: 100%; justify-content: center; background: #25D366; border-color: #25D366; font-size: 0.95rem;">
+                <i class="fa-brands fa-whatsapp"></i> Confirm & Order via WhatsApp
+              </button>
+              <button type="submit" onclick="window.orderChannel='gmail'" class="btn-primary" style="width: 100%; justify-content: center; background: #EA4335; border-color: #EA4335; font-size: 0.95rem;">
+                <i class="fa-solid fa-envelope"></i> Confirm & Order via Gmail
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(orderModal);
+  }
 }
 
 // Wishlist Side Drawer Handlers
@@ -608,6 +682,7 @@ function proceedCartCheckout() {
 
 // 8. Order Checkout Modal Logic & Custom Sizing
 function openOrderModal(title, pricePkr) {
+  ensureDrawersInDOM();
   let prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === title) || { image_url: 'images/emerald_gown.jpg', category: 'formal' };
   currentOrderingProduct = { title: title, pricePkr: pricePkr, selectedSize: 'M', discountRate: 0, image_url: prod.image_url, category: prod.category };
   
@@ -619,11 +694,14 @@ function openOrderModal(title, pricePkr) {
     updateBadges();
   }
 
-  document.getElementById('orderModalTitle').textContent = `Order: ${title}`;
+  const titleEl = document.getElementById('orderModalTitle');
+  if (titleEl) titleEl.textContent = `Order: ${title}`;
   updateModalPriceDisplay(pricePkr);
-  document.getElementById('discountTag').style.display = 'none';
+  const tagEl = document.getElementById('discountTag');
+  if (tagEl) tagEl.style.display = 'none';
 
-  document.getElementById('orderModal').classList.add('active');
+  const modal = document.getElementById('orderModal');
+  if (modal) modal.classList.add('active');
 }
 
 function closeOrderModal() {
@@ -763,15 +841,15 @@ async function submitOrder(e) {
     : `PKR ${finalPrice.toLocaleString()}`;
 
   const orderText = 
-`🛍️ NEW ORDER - SAMRINA BOUTIQUE 🛍️
+`❖ NEW ORDER - SAMRINA BOUTIQUE ❖
 
 Order No: ${savedOrderNumber}
 Dress: ${currentOrderingProduct.title}
 Size: ${currentOrderingProduct.selectedSize} ${customMeasurements ? ' (' + customMeasurements + ')' : ''}
 Total Bill: ${formattedPriceText} ${currentOrderingProduct.discountRate > 0 ? '(Promo Discount Applied!)' : ''}
 
-----------------------------------------
-👤 CUSTOMER DETAILS:
+-----------------------------------
+❖ CUSTOMER DETAILS:
 Name: ${name}
 Phone: ${phone}
 Address: ${address}
