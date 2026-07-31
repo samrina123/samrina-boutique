@@ -11,14 +11,15 @@
   
   <style>
     :root {
-      --primary-dark: #0A1E17;
-      --card-bg: #122A22;
-      --emerald-accent: #164E3D;
-      --gold-primary: #D4AF37;
-      --gold-light: #E6C687;
-      --text-main: #FDFBF7;
-      --text-muted: #9BA4A0;
-      --border-color: rgba(212, 175, 55, 0.2);
+      --primary-dark: #FFF5F6;         /* Powder Blush Pink */
+      --card-bg: #FFFFFF;              /* Pure White Surface */
+      --emerald-accent: #5C2234;       /* Deep Rose Velvet */
+      --gold-primary: #D4AF37;         /* Champagne Gold */
+      --gold-light: #C5A059;          /* Soft Gold Accent */
+      --text-main: #2C2224;            /* Deep Charcoal Espresso Text */
+      --text-muted: #7D6E71;           /* Soft Muted Rose Gray */
+      --border-color: #F3E0E2;         /* Gentle Blush Border */
+      --gold-bg-light: #FFF8EE;       /* Light Champagne Highlight */
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -42,12 +43,14 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 4px 15px rgba(92, 34, 52, 0.05);
     }
 
     .mobile-logo {
       font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: var(--gold-primary);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--emerald-accent);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -55,16 +58,17 @@
 
     .mobile-menu-btn {
       background: var(--emerald-accent);
-      color: var(--gold-light);
+      color: #FFFFFF;
       border: 1px solid var(--border-color);
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: transform 0.2s;
     }
 
     .app-layout {
@@ -126,9 +130,10 @@
     }
 
     .sidebar-link:hover, .sidebar-link.active {
-      background: var(--emerald-accent);
-      color: var(--gold-light);
-      border-left: 3px solid var(--gold-primary);
+      background: var(--primary-dark);
+      color: var(--emerald-accent);
+      border-left: 3px solid var(--emerald-accent);
+      font-weight: 700;
     }
 
     /* Main Content Area */
@@ -151,25 +156,28 @@
     .page-title {
       font-family: 'Playfair Display', serif;
       font-size: 1.8rem;
-      color: var(--gold-primary);
+      color: var(--emerald-accent);
+      font-weight: 700;
     }
 
     .back-to-site-btn {
-      background: var(--gold-primary);
-      color: var(--primary-dark);
-      padding: 10px 18px;
-      border-radius: 20px;
+      background: var(--emerald-accent);
+      color: #FFFFFF;
+      padding: 10px 20px;
+      border-radius: 25px;
       font-weight: 700;
       font-size: 0.85rem;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: transform 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(92, 34, 52, 0.15);
     }
 
     .back-to-site-btn:hover {
       transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(92, 34, 52, 0.25);
     }
 
     /* Analytics Metrics Grid */
@@ -184,17 +192,24 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       padding: 20px;
-      border-radius: 14px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       gap: 16px;
+      box-shadow: 0 4px 15px rgba(92, 34, 52, 0.04);
+      transition: transform 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-3px);
     }
 
     .metric-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: rgba(212, 175, 55, 0.15);
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: var(--gold-bg-light);
+      border: 1px solid var(--border-color);
       color: var(--gold-primary);
       display: flex;
       align-items: center;
@@ -204,29 +219,32 @@
     }
 
     .metric-value {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 700;
-      color: var(--gold-light);
+      color: var(--emerald-accent);
     }
 
     .metric-label {
       font-size: 0.8rem;
       color: var(--text-muted);
+      font-weight: 600;
     }
 
     /* Section Cards & Responsive Tables */
     .section-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 24px;
       margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(92, 34, 52, 0.04);
     }
 
     .section-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      color: var(--gold-light);
+      font-size: 1.35rem;
+      color: var(--emerald-accent);
+      font-weight: 700;
       margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
@@ -239,7 +257,7 @@
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1px solid var(--border-color);
     }
 
@@ -252,14 +270,14 @@
     }
 
     th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
     }
 
     th {
-      background: rgba(22, 78, 61, 0.5);
-      color: var(--gold-primary);
-      font-weight: 600;
+      background: var(--emerald-accent);
+      color: #FFFFFF;
+      font-weight: 700;
       text-transform: uppercase;
       font-size: 0.75rem;
       letter-spacing: 0.5px;
@@ -268,12 +286,12 @@
     tr:last-child td { border-bottom: none; }
 
     .status-select {
-      background: rgba(212, 175, 55, 0.15);
-      color: var(--gold-light);
+      background: var(--gold-bg-light);
+      color: var(--emerald-accent);
       border: 1px solid var(--border-color);
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
       font-size: 0.8rem;
       font-family: inherit;
       cursor: pointer;
@@ -316,32 +334,41 @@
     }
 
     .form-control {
-      background: var(--primary-dark);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
       color: var(--text-main);
       padding: 10px 14px;
-      border-radius: 8px;
+      border-radius: 10px;
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .form-control:focus {
       outline: none;
       border-color: var(--gold-primary);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
     }
 
     .submit-btn {
-      background: var(--gold-primary);
-      color: var(--primary-dark);
+      background: var(--emerald-accent);
+      color: #FFFFFF;
       border: none;
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 25px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       font-size: 0.9rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(92, 34, 52, 0.15);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(92, 34, 52, 0.25);
     }
 
     /* Responsive Mobile Media Queries (< 768px) */
@@ -394,13 +421,13 @@
   <!-- Top Navigation Header -->
   <header class="mobile-header">
     <div class="mobile-logo">
-      <i class="fa-solid fa-crown"></i> Samrina Admin
+      <i class="fa-solid fa-crown" style="color: var(--gold-primary);"></i> Samrina Admin Suite
     </div>
     <div style="display: flex; gap: 10px; align-items: center;">
       <button class="mobile-menu-btn" onclick="toggleSidebarMenu()">
         <i class="fa-solid fa-bars"></i> Menu
       </button>
-      <a href="index.html" class="back-to-site-btn" target="_blank" style="padding: 6px 12px; font-size: 0.75rem;">
+      <a href="index.html" class="back-to-site-btn" target="_blank" style="padding: 6px 14px; font-size: 0.8rem;">
         <i class="fa-solid fa-store"></i> Storefront
       </a>
     </div>
@@ -413,7 +440,7 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebarMenu">
       <div class="sidebar-logo">
-        <i class="fa-solid fa-crown"></i> Samrina Admin
+        <i class="fa-solid fa-crown" style="color: var(--gold-primary);"></i> Samrina Admin Suite
       </div>
       <ul class="sidebar-menu">
         <li>
