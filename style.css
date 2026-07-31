@@ -6,25 +6,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Color Palette - Theme 4: Soft Powder Blush Pink & Champagne Gold */
-  --primary-emerald: #5C2234;     /* Deep Rose Velvet */
-  --emerald-light: #7A3348;      /* Rose Velvet Light */
-  --emerald-dark: #3D1220;       /* Dark Rose Velvet */
-  --gold-primary: #D4AF37;      /* Champagne Gold */
+  /* Color Palette - Porto Theme Inspired: Dusty Berry Rose & Soft Creamy Blush */
+  --primary-emerald: #A3486E;     /* Dusty Berry Rose Primary */
+  --emerald-light: #B85880;      /* Light Berry Rose */
+  --emerald-dark: #843254;       /* Deep Maroon Berry Hover */
+  --gold-primary: #D4AF37;      /* Champagne Gold Accent */
   --gold-accent: #C5A059;       /* Soft Gold */
   --gold-light: #FFF8EE;        /* Light Gold Glow */
-  --ivory-bg: #FFF5F6;          /* Soft Powder Blush Pink */
+  --ivory-bg: #FCF2F4;          /* Soft Creamy Blush Background */
   --white: #FFFFFF;             /* Pure White Surface */
-  --dark-charcoal: #2C2224;      /* Deep Espresso Text */
-  --text-muted: #7D6E71;        /* Soft Muted Rose Gray */
-  --border-light: #F3E0E2;      /* Gentle Blush Border */
-  --rose-blush: #FFEAEF;        /* Light Rose Highlight */
+  --dark-charcoal: #2C2025;      /* Deep Espresso Charcoal Text */
+  --text-muted: #7A6970;        /* Soft Muted Rose Gray */
+  --border-light: #F0D5DD;      /* Gentle Blush Pink Border */
+  --rose-blush: #F9E5EA;        /* Light Rose Highlight */
 
   /* Shadows & Glassmorphism */
-  --shadow-sm: 0 4px 14px rgba(92, 34, 52, 0.06);
-  --shadow-md: 0 8px 24px rgba(92, 34, 52, 0.12);
-  --shadow-lg: 0 16px 40px rgba(92, 34, 52, 0.18);
-  --glass-bg: rgba(255, 255, 255, 0.92);
+  --shadow-sm: 0 4px 14px rgba(163, 72, 110, 0.08);
+  --shadow-md: 0 8px 24px rgba(163, 72, 110, 0.14);
+  --shadow-lg: 0 16px 40px rgba(163, 72, 110, 0.20);
+  --glass-bg: rgba(255, 255, 255, 0.94);
 
   /* Typography */
   --font-serif: 'Playfair Display', Georgia, serif;
@@ -374,25 +374,25 @@ img {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--gold-primary);
+  letter-spacing: 2.5px;
+  color: var(--primary-emerald);
   margin-bottom: 12px;
-  background: var(--gold-light);
-  padding: 6px 14px;
+  background: var(--rose-blush);
+  padding: 6px 16px;
   border-radius: 20px;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid var(--border-light);
 }
 
 .hero-title {
   font-family: var(--font-serif);
-  font-size: 3.2rem;
+  font-size: 3.4rem;
   line-height: 1.15;
-  color: var(--primary-emerald);
+  color: var(--dark-charcoal);
   margin-bottom: 20px;
 }
 
 .hero-title span {
-  color: var(--gold-primary);
+  color: var(--primary-emerald);
   font-style: italic;
 }
 
@@ -410,20 +410,22 @@ img {
 
 .btn-primary {
   background: var(--primary-emerald);
-  color: var(--gold-accent);
-  padding: 14px 30px;
+  color: var(--white);
+  padding: 14px 34px;
   border-radius: 30px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
-  background: var(--emerald-light);
+  background: var(--emerald-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -431,23 +433,76 @@ img {
 .btn-outline {
   border: 2px solid var(--primary-emerald);
   color: var(--primary-emerald);
-  padding: 12px 28px;
+  padding: 12px 30px;
   border-radius: 30px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
   transition: all var(--transition-fast);
+  background: transparent;
 }
 
 .btn-outline:hover {
   background: var(--primary-emerald);
-  color: var(--gold-accent);
+  color: var(--white);
   transform: translateY(-2px);
+}
+
+/* Arched Dome Image Mask (Curved Top Dome like reference photo) */
+.arch-frame {
+  border-radius: 240px 240px 0 0 !important;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(163, 72, 110, 0.18);
+  border: 4px solid var(--white);
+  transition: transform var(--transition-normal);
+}
+
+.arch-frame:hover {
+  transform: scale(1.02);
 }
 
 .hero-image-wrapper {
   position: relative;
-  border-radius: 20px;
+  border-radius: 240px 240px 0 0;
   overflow: hidden;
+}
+
+/* Wavy Scalloped Banner & Section Divider (Exact Wavy Sections from Reference Image) */
+.wavy-banner-section {
+  position: relative;
+  background: var(--primary-emerald);
+  color: var(--white);
+  padding: 90px 0;
+  margin: 60px 0;
+  text-align: center;
+}
+
+.wavy-svg-top, .wavy-svg-bottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.wavy-svg-top {
+  top: -38px;
+}
+
+.wavy-svg-bottom {
+  bottom: -38px;
+  transform: rotate(180deg);
+}
+
+.wavy-svg-top svg, .wavy-svg-bottom svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 40px;
+}
+
+.wavy-svg-top path, .wavy-svg-bottom path {
+  fill: var(--primary-emerald);
+}
   box-shadow: var(--shadow-lg);
   border: 4px solid var(--white);
 }
