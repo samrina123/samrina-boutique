@@ -6,24 +6,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Color Palette - Porto Theme Inspired: Dusty Berry Rose & Soft Creamy Blush */
-  --primary-emerald: #A3486E;     /* Dusty Berry Rose Primary */
-  --emerald-light: #B85880;      /* Light Berry Rose */
-  --emerald-dark: #843254;       /* Deep Maroon Berry Hover */
-  --gold-primary: #D4AF37;      /* Champagne Gold Accent */
+  /* Restored Color Palette: Royal Emerald Green, Soft Blush & Champagne Gold */
+  --primary-emerald: #1B4D3E;     /* Deep Royal Emerald Green */
+  --emerald-light: #256955;      /* Medium Emerald */
+  --emerald-dark: #12352B;       /* Dark Emerald */
+  --gold-primary: #D4AF37;      /* Regal Champagne Gold */
   --gold-accent: #C5A059;       /* Soft Gold */
-  --gold-light: #FFF8EE;        /* Light Gold Glow */
-  --ivory-bg: #FCF2F4;          /* Soft Creamy Blush Background */
+  --gold-light: #F4E8C1;        /* Light Gold Glow */
+  --gold-bg-light: rgba(212, 175, 55, 0.08);
+  --ivory-bg: #FAF6F0;          /* Warm Ivory Background */
   --white: #FFFFFF;             /* Pure White Surface */
-  --dark-charcoal: #2C2025;      /* Deep Espresso Charcoal Text */
-  --text-muted: #7A6970;        /* Soft Muted Rose Gray */
-  --border-light: #F0D5DD;      /* Gentle Blush Pink Border */
-  --rose-blush: #F9E5EA;        /* Light Rose Highlight */
+  --dark-charcoal: #1A1A1A;      /* Deep Charcoal Text */
+  --text-muted: #666666;        /* Muted Gray Text */
+  --border-light: #E8DFD8;      /* Warm Light Border */
+  --rose-blush: #F4EAE6;        /* Soft Blush Powder */
 
   /* Shadows & Glassmorphism */
-  --shadow-sm: 0 4px 14px rgba(163, 72, 110, 0.08);
-  --shadow-md: 0 8px 24px rgba(163, 72, 110, 0.14);
-  --shadow-lg: 0 16px 40px rgba(163, 72, 110, 0.20);
+  --shadow-sm: 0 4px 14px rgba(27, 77, 62, 0.08);
+  --shadow-md: 0 8px 24px rgba(27, 77, 62, 0.14);
+  --shadow-lg: 0 16px 40px rgba(27, 77, 62, 0.20);
   --glass-bg: rgba(255, 255, 255, 0.94);
 
   /* Typography */
