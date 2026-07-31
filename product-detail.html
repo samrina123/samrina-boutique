@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dress Details | Samrina Boutique Haute Couture</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css?v=9">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="container">
+      <div class="announcement-text">
+        <i class="fa-solid fa-crown" style="color: var(--gold-primary); margin-right: 6px;"></i> <strong>SAMRINA BOUTIQUE</strong> | Free Express Delivery & Bespoke Tailoring | Code: <strong style="color: var(--gold-primary);">SAMRINA10</strong>
+      </div>
+      <div class="currency-selector">
+        <button onclick="document.getElementById('trackModal').classList.add('active')" class="top-link-btn"><i class="fa-solid fa-truck-fast"></i> Track Order</button>
+        <a href="admin.html" target="_blank" class="top-link-btn" style="color: var(--gold-primary); margin-right: 15px;"><i class="fa-solid fa-user-shield"></i> Admin Portal</a>
+        <span style="opacity: 0.7;">Currency:</span>
+        <button class="currency-btn active" id="btn-pkr" onclick="setCurrency('PKR')">PKR (₨)</button>
+        <span style="opacity: 0.4;">|</span>
+        <button class="currency-btn" id="btn-usd" onclick="setCurrency('USD')">USD ($)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="header header-concept1">
+    <div class="header-main-row">
+      <div class="container header-flex-row">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search sarees, velvet, silk..." onkeyup="filterProducts()">
+        </div>
+
+        <a href="index.html" class="logo-centered">
+          <span class="logo-crown-icon">👑</span>
+          <span class="logo-brand-name">SAMRINA</span>
+          <span class="logo-sub-tagline">BOUTIQUE HAUTE COUTURE</span>
+        </a>
+
+        <div class="nav-actions">
+          <button class="action-icon-btn" title="Wishlist" onclick="openWishlistDrawer()">
+            <i class="fa-regular fa-heart"></i>
+            <span class="badge" id="wishlistCount">0</span>
+          </button>
+
+          <button class="action-icon-btn" title="Shopping Bag" onclick="openCartDrawer()">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="badge" id="cartCount">0</span>
+          </button>
+
+          <button class="mobile-toggle" id="mobileToggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="category-nav-bar">
+      <div class="container">
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop All</a></li>
+          <li><a href="shop.html?cat=saree" class="nav-link">Sarees</a></li>
+          <li><a href="shop.html?cat=casual" class="nav-link">Casual Wear</a></li>
+          <li><a href="shop.html?cat=shalwar" class="nav-link">Shalwar Kameez</a></li>
+          <li><a href="shop.html?cat=pret" class="nav-link">Pret Wear</a></li>
+          <li><a href="shop.html?cat=formal" class="nav-link">Formals</a></li>
+          <li><a href="shop.html?cat=bridal" class="nav-link">Bridal Couture</a></li>
+          <li><a href="about.html" class="nav-link">About Us</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Product Detail Section -->
+  <section class="section" style="padding: 40px 0;">
+    <div class="container">
+      <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted);">
+        <a href="index.html">Home</a> &gt; <a href="shop.html">Shop Catalog</a> &gt; <span id="breadcrumbTitle" style="color: var(--primary-emerald); font-weight: 700;">Loading Dress...</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;" id="productDetailContainer">
+        
+        <!-- Left Column: Product Photo Zoom -->
+        <div>
+          <div class="arch-frame" style="border-radius: 20px !important; margin-bottom: 15px; border: 1px solid var(--border-light);">
+            <img id="detailMainImg" src="" alt="Dress Preview" style="width: 100%; height: 520px; object-fit: cover;">
+          </div>
+        </div>
+
+        <!-- Right Column: Dress Info & Bespoke Custom Tailoring Order -->
+        <div style="background: var(--white); border: 1px solid var(--border-light); padding: 30px; border-radius: 20px; box-shadow: var(--shadow-sm);">
+          <span id="detailFabricBadge" class="fabric-badge" style="position: static; display: inline-block; margin-bottom: 12px;">Fabric</span>
+          <h1 id="detailTitle" style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--dark-charcoal); margin-bottom: 10px;">Loading Title...</h1>
+          <div id="detailPrice" style="font-size: 1.8rem; font-weight: 700; color: var(--primary-emerald); margin-bottom: 20px;">PKR 0</div>
+
+          <p id="detailDesc" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.6;">
+            Handcrafted Pakistani couture ensemble featuring exquisite embroidery work, premium fabric texture, and elegant tailoring.
+          </p>
+
+          <!-- Size Selection -->
+          <div style="margin-bottom: 24px;">
+            <label style="font-weight: 700; font-size: 0.9rem; display: block; margin-bottom: 10px;">Select Size Option:</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="sizeOptionsList">
+              <button class="size-btn active" onclick="selectDetailSize(this, 'S')">S</button>
+              <button class="size-btn" onclick="selectDetailSize(this, 'M')">M</button>
+              <button class="size-btn" onclick="selectDetailSize(this, 'L')">L</button>
+              <button class="size-btn" onclick="selectDetailSize(this, 'XL')">XL</button>
+              <button class="size-btn" onclick="selectDetailSize(this, 'Custom')" style="width: auto; padding: 0 16px;">Bespoke Custom Fit</button>
+            </div>
+          </div>
+
+          <!-- Custom Tailoring Input Box (if Bespoke Selected) -->
+          <div id="customTailoringBox" style="display: none; background: var(--rose-blush); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border-light);">
+            <h4 style="font-size: 0.9rem; color: var(--primary-emerald); margin-bottom: 10px;"><i class="fa-solid fa-ruler-combined"></i> Custom Measurements (Inches):</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+              <input type="text" id="custBust" class="form-control" placeholder="Chest / Bust (e.g. 36 in)">
+              <input type="text" id="custWaist" class="form-control" placeholder="Waist (e.g. 30 in)">
+              <input type="text" id="custHips" class="form-control" placeholder="Hips (e.g. 40 in)">
+              <input type="text" id="custLength" class="form-control" placeholder="Shirt Length (e.g. 42 in)">
+            </div>
+          </div>
+
+          <!-- Direct Dual Checkout Buttons -->
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+            <button class="btn-primary" style="justify-content: center; background: #25D366; color: white;" onclick="orderDetailViaWhatsApp()">
+              <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Confirm & Order via WhatsApp
+            </button>
+            <button class="btn-primary" style="justify-content: center; background: #EA4335; color: white;" onclick="orderDetailViaGmail()">
+              <i class="fa-solid fa-envelope" style="font-size: 1.2rem;"></i> Confirm & Order via Gmail (samrinamughal456@gmail.com)
+            </button>
+            <button class="btn-outline" style="width: 100%; text-align: center;" onclick="addDetailToCart()">
+              <i class="fa-solid fa-bag-shopping"></i> Add to Shopping Bag
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" style="background: var(--dark-charcoal); color: var(--white); padding: 50px 0 20px;">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; margin-bottom: 30px;">
+        <div>
+          <h3 style="font-family: var(--font-serif); color: var(--gold-primary); margin-bottom: 12px;">SAMRINA BOUTIQUE</h3>
+          <p style="font-size: 0.88rem; opacity: 0.8;">Haute Couture & Handcrafted Pakistani Fashion. Tailored to perfection for your special occasions.</p>
+        </div>
+        <div>
+          <h4 style="color: var(--gold-primary); margin-bottom: 12px;">Quick Links</h4>
+          <p><a href="index.html" style="opacity: 0.8;">Home</a></p>
+          <p><a href="shop.html" style="opacity: 0.8;">Shop Catalog</a></p>
+          <p><a href="about.html" style="opacity: 0.8;">About Our Brand</a></p>
+          <p><a href="contact.html" style="opacity: 0.8;">Contact Us</a></p>
+        </div>
+        <div>
+          <h4 style="color: var(--gold-primary); margin-bottom: 12px;">Customer Support</h4>
+          <p style="font-size: 0.88rem; opacity: 0.8;"><i class="fa-solid fa-location-dot"></i> Neeli Bar City, Afaq Road Burewala, Pakistan</p>
+          <p style="font-size: 0.88rem; opacity: 0.8; margin-top: 6px;"><i class="fa-brands fa-whatsapp"></i> +92 303 8873030</p>
+          <p style="font-size: 0.88rem; opacity: 0.8; margin-top: 6px;"><i class="fa-solid fa-envelope"></i> samrinamughal456@gmail.com</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js?v=9"></script>
+  <script>
+    // Product Detail Page Dynamic URL Handler
+    let currentDetailProduct = null;
+    let selectedDetailSizeVal = 'S';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const prodId = parseInt(params.get('id')) || 1;
+      
+      const found = productsData.find(p => p.id === prodId) || productsData[0];
+      if (found) {
+        currentDetailProduct = found;
+        document.getElementById('breadcrumbTitle').textContent = found.title;
+        document.getElementById('detailTitle').textContent = found.title;
+        document.getElementById('detailFabricBadge').textContent = found.fabric || 'Haute Couture';
+        document.getElementById('detailPrice').textContent = `PKR ${found.price_pkr.toLocaleString()}`;
+        document.getElementById('detailMainImg').src = found.image_url;
+      }
+    });
+
+    function selectDetailSize(btn, size) {
+      document.querySelectorAll('#sizeOptionsList .size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedDetailSizeVal = size;
+      const customBox = document.getElementById('customTailoringBox');
+      if (size === 'Custom') {
+        customBox.style.display = 'block';
+      } else {
+        customBox.style.display = 'none';
+      }
+    }
+
+    function orderDetailViaWhatsApp() {
+      if (!currentDetailProduct) return;
+      let msg = `Hello Samrina Boutique! I want to order:\nDress: ${currentDetailProduct.title}\nPrice: PKR ${currentDetailProduct.price_pkr}\nSize: ${selectedDetailSizeVal}`;
+      if (selectedDetailSizeVal === 'Custom') {
+        msg += `\nCustom Measurements: Bust: ${document.getElementById('custBust').value}, Waist: ${document.getElementById('custWaist').value}, Length: ${document.getElementById('custLength').value}`;
+      }
+      window.open(`https://wa.me/923038873030?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function orderDetailViaGmail() {
+      if (!currentDetailProduct) return;
+      let subject = `New Order: ${currentDetailProduct.title}`;
+      let body = `Hello Samrina Boutique,\n\nI wish to confirm an order for:\nDress: ${currentDetailProduct.title}\nPrice: PKR ${currentDetailProduct.price_pkr}\nSize: ${selectedDetailSizeVal}\n\nPlease contact me to confirm delivery address.`;
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=samrinamughal456@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+    }
+
+    function addDetailToCart() {
+      if (!currentDetailProduct) return;
+      addToCart(currentDetailProduct.id);
+      openCartDrawer();
+    }
+  </script>
+</body>
+</html>
