@@ -516,9 +516,8 @@
             <thead>
               <tr>
                 <th>Order #</th>
-                <th>Customer</th>
-                <th>Phone</th>
-                <th>Address</th>
+                <th>Customer & Contact</th>
+                <th>City & Address</th>
                 <th>Product & Size</th>
                 <th>Total Bill</th>
                 <th>Order Status</th>
@@ -760,12 +759,23 @@
         if (ordersList.length > 0) {
           ordersList.forEach((ord, index) => {
             const tr = document.createElement('tr');
+            const cEmail = ord.customer_email || ord.email || '';
+            const cCity = ord.city || '';
+            const cPostal = ord.postal_code || '';
+            const cCountry = ord.country || 'Pakistan';
+            
             tr.innerHTML = `
               <td style="font-weight: 700; color: var(--gold-primary);">${ord.order_number || ('SB-ORD-' + (index + 1))}</td>
-              <td>${ord.customer_name || 'Customer'}</td>
-              <td>${ord.customer_phone || '-'}</td>
-              <td>${ord.customer_address || '-'}</td>
-              <td>${ord.product_title || 'Haute Couture Dress'} (${ord.size || 'M'}) ${ord.custom_measurements ? '<br><small style="color:var(--text-muted);">' + ord.custom_measurements + '</small>' : ''}</td>
+              <td>
+                <strong>${ord.customer_name || 'Customer'}</strong><br>
+                <small style="color: var(--text-muted);"><i class="fa-solid fa-phone"></i> ${ord.customer_phone || ord.phone || '-'}</small>
+                ${cEmail ? '<br><small style="color: var(--text-muted);"><i class="fa-solid fa-envelope"></i> ' + cEmail + '</small>' : ''}
+              </td>
+              <td>
+                <strong>${cCity ? cCity + (cPostal ? ' (' + cPostal + ')' : '') : 'Pakistan'}</strong> 🇵🇰<br>
+                <small style="color: var(--text-muted);">${ord.customer_address || ord.delivery_address || '-'}</small>
+              </td>
+              <td>${ord.product_title || ord.dress_title || 'Haute Couture Dress'} (${ord.size || 'M'}) ${ord.custom_measurements ? '<br><small style="color:var(--text-muted);">' + ord.custom_measurements + '</small>' : ''}</td>
               <td style="font-weight: 700; color: var(--emerald-accent);">PKR ${(ord.total_price_pkr || 0).toLocaleString()}</td>
               <td>
                 <select class="status-select" onchange="updateOrderStatus('${ord.order_number || ord.id || index}', this.value)">
@@ -780,7 +790,7 @@
             tbody.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No orders placed yet. Place an order on the storefront!</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No orders placed yet. Place an order on the storefront!</td></tr>';
         }
 
         // Render Inquiries Table

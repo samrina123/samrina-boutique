@@ -412,45 +412,68 @@ function closeOrderModal() {
   if (modal) modal.classList.remove('active');
 }
 
-function submitOrder(method = 'whatsapp') {
-  const name = document.getElementById('custName').value.trim();
-  const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress').value.trim();
+function submitOrder(method) {
+  const name = document.getElementById('custName')?.value.trim();
+  const phone = document.getElementById('custPhone')?.value.trim();
+  const email = document.getElementById('custEmail')?.value.trim();
+  const city = document.getElementById('custCity')?.value.trim();
+  const postal = document.getElementById('custPostal')?.value.trim();
+  const country = 'Pakistan';
+  const address = document.getElementById('custAddress')?.value.trim();
+
   const dress = document.getElementById('modalDressTitle').innerText;
   const price = document.getElementById('modalDressPrice').innerText;
 
-  if (!name || !phone || !address) {
-    alert('Please enter your Name, Phone/WhatsApp number, and Delivery Address to place your order.');
+  if (!name || !phone || !city || !address) {
+    alert('Please fill in your Name, Phone Number, City Name, and Delivery Address to place your order.');
     return;
   }
 
   let measurementsInfo = '';
+  let customMeasurementsStr = '';
   if (selectedSize === 'Bespoke Custom Fit') {
     const chest = document.getElementById('mChest')?.value || 'Std';
     const waist = document.getElementById('mWaist')?.value || 'Std';
     const hips = document.getElementById('mHips')?.value || 'Std';
     const length = document.getElementById('mLength')?.value || 'Std';
-    measurementsInfo = `\n❖ CUSTOM MEASUREMENTS:\n- Chest: ${chest}" | Waist: ${waist}" | Hips: ${hips}" | Length: ${length}"`;
+    customMeasurementsStr = `Chest: ${chest}" | Waist: ${waist}" | Hips: ${hips}" | Length: ${length}"`;
+    measurementsInfo = `\n❖ CUSTOM MEASUREMENTS:\n- ${customMeasurementsStr}`;
   }
 
   const orderNum = 'SB-' + Math.floor(100000 + Math.random() * 900000);
 
-  // Sync with LocalStorage Admin Database
+  // Sync with LocalStorage Admin Database & API
   const newOrderObj = {
     order_number: orderNum,
     customer_name: name,
     customer_phone: phone,
-    delivery_address: address,
+    customer_email: email || 'N/A',
+    city: city,
+    postal_code: postal || 'N/A',
+    country: country,
+    customer_address: address,
     dress_title: dress,
+    product_title: dress,
     size: selectedSize,
+    custom_measurements: customMeasurementsStr,
     total_price_pkr: parseInt(price.replace(/[^0-9]/g, '')) || 0,
-    status: 'Verified & Tailoring',
+    status: 'Pending',
+    order_status: 'Pending',
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   };
 
   const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
   localOrders.unshift(newOrderObj);
   localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
+
+  // Try POST to API backend
+  try {
+    fetch(`${API_URL}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newOrderObj)
+    });
+  } catch (err) {}
 
   if (method === 'whatsapp') {
     const text = `❖ NEW ORDER - SAMRINA BOUTIQUE ❖\n` +
@@ -459,9 +482,13 @@ function submitOrder(method = 'whatsapp') {
       `Price: ${price}\n` +
       `Size: ${selectedSize}${measurementsInfo}\n\n` +
       `❖ CUSTOMER DETAILS:\n` +
-      `Name: ${name}\n` +
-      `Phone: ${phone}\n` +
-      `Address: ${address}\n\n` +
+      `• Name: ${name}\n` +
+      `• Phone: ${phone}\n` +
+      `• Gmail: ${email || 'N/A'}\n` +
+      `• City: ${city}\n` +
+      `• Postal Code: ${postal || 'N/A'}\n` +
+      `• Country: ${country} 🇵🇰\n` +
+      `• Address: ${address}\n\n` +
       `Thank you! Please confirm my order placement.`;
 
     const waUrl = `https://api.whatsapp.com/send?phone=923038873030&text=${encodeURIComponent(text)}`;
@@ -469,7 +496,7 @@ function submitOrder(method = 'whatsapp') {
     showToast('Redirecting to WhatsApp...');
     window.location.href = waUrl;
   } else {
-    alert(`Order ${orderNum} Placed Successfully via Email! Customer support will reach out to ${phone}.`);
+    alert(`Order ${orderNum} Placed Successfully! Customer support will reach out to ${phone}.`);
     closeOrderModal();
   }
 }
@@ -570,9 +597,18 @@ async function searchTrackOrder() {
     const status = match.order_status || match.status || 'Pending';
     const measurements = match.custom_measurements || '';
 
+    const email = match.customer_email || match.email || 'N/A';
+    const city = match.city || 'N/A';
+    const postal = match.postal_code || 'N/A';
+    const country = match.country || 'Pakistan';
+
     const elOrd = document.getElementById('tOrdNum');
     const elCust = document.getElementById('tCustName');
     const elPhone = document.getElementById('tPhone');
+    const elEmail = document.getElementById('tEmail');
+    const elCity = document.getElementById('tCity');
+    const elPostal = document.getElementById('tPostal');
+    const elCountry = document.getElementById('tCountry');
     const elDress = document.getElementById('tDress');
     const elSize = document.getElementById('tSize');
     const elPrice = document.getElementById('tPrice');
@@ -581,6 +617,10 @@ async function searchTrackOrder() {
     if (elOrd) elOrd.innerText = `Order #${ordNum}`;
     if (elCust) elCust.innerText = custName;
     if (elPhone) elPhone.innerText = phone;
+    if (elEmail) elEmail.innerText = email;
+    if (elCity) elCity.innerText = city;
+    if (elPostal) elPostal.innerText = postal;
+    if (elCountry) elCountry.innerText = `🇵🇰 ${country}`;
     if (elDress) elDress.innerText = dress;
     if (elSize) elSize.innerText = size;
     if (elPrice) elPrice.innerText = `PKR ${price.toLocaleString()}`;
