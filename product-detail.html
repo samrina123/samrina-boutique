@@ -93,7 +93,7 @@
         <!-- Left Column: Product Photo Zoom -->
         <div>
           <div class="arch-frame" style="border-radius: 20px !important; margin-bottom: 15px; border: 1px solid var(--border-light);">
-            <img id="detailMainImg" src="" alt="Dress Preview" style="width: 100%; height: 520px; object-fit: cover;">
+            <img id="detailMainImg" src="" alt="Dress Preview" style="width: 100%; height: 520px; object-fit: cover;" onerror="handleImageError(this, currentDetailProduct ? currentDetailProduct.category : 'saree')">
           </div>
         </div>
 
