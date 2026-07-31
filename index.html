@@ -376,11 +376,46 @@
           <button type="button" class="btn-primary" onclick="searchTrackOrder()">Track</button>
         </div>
 
-        <div id="trackResultBox" style="display: none; background: var(--ivory-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border-light);">
-          <h4 id="tOrdNum" style="color: var(--primary-emerald); font-family: var(--font-serif); margin-bottom: 8px;">Order #</h4>
-          <p style="font-size: 0.85rem;"><strong>Customer:</strong> <span id="tCustName">--</span></p>
-          <p style="font-size: 0.85rem;"><strong>Dress:</strong> <span id="tDress">--</span></p>
-          <p style="font-size: 0.85rem;"><strong>Total Price:</strong> <span id="tPrice">--</span></p>
+        <div id="trackResultBox" style="display: none; background: var(--white); padding: 20px; border-radius: 16px; border: 1px solid var(--gold-light); margin-top: 16px; box-shadow: var(--shadow-sm);">
+          <!-- Header Status Badge Row -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px;">
+            <h4 id="tOrdNum" style="color: var(--primary-emerald); font-family: var(--font-serif); font-size: 1.2rem; margin: 0;">Order #</h4>
+            <span id="tStatusBadge" style="background: var(--primary-emerald); color: var(--gold-primary); padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">PENDING</span>
+          </div>
+
+          <!-- Customer & Order Details Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; margin-bottom: 16px;">
+            <p><strong>Customer:</strong> <span id="tCustName">--</span></p>
+            <p><strong>Phone:</strong> <span id="tPhone">--</span></p>
+            <p style="grid-column: span 2;"><strong>Dress:</strong> <span id="tDress">--</span></p>
+            <p><strong>Size:</strong> <span id="tSize">--</span></p>
+            <p><strong>Total Bill:</strong> <span id="tPrice" style="color: var(--primary-emerald); font-weight: 700;">--</span></p>
+            <p style="grid-column: span 2; display: none;" id="tMeasurementsRow"><strong>Measurements:</strong> <span id="tMeasurements">--</span></p>
+            <p style="grid-column: span 2;"><strong>Delivery Address:</strong> <span id="tAddress">--</span></p>
+          </div>
+
+          <!-- 4-Step Interactive Live Timeline -->
+          <div style="border-top: 1px solid var(--border-light); padding-top: 16px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-emerald); margin-bottom: 12px; text-align: center;">Live Tailoring & Delivery Stage:</div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; text-align: center;" id="timelineContainer">
+              <div id="step-verified" style="flex: 1; opacity: 0.4;">
+                <div id="icon-verified" style="width: 32px; height: 32px; border-radius: 50%; background: #ccc; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;"><i class="fa-solid fa-receipt"></i></div>
+                <div style="font-weight: 600;">Verified</div>
+              </div>
+              <div id="step-tailoring" style="flex: 1; opacity: 0.4;">
+                <div id="icon-tailoring" style="width: 32px; height: 32px; border-radius: 50%; background: #ccc; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;"><i class="fa-solid fa-scissors"></i></div>
+                <div style="font-weight: 600;">In Tailoring</div>
+              </div>
+              <div id="step-dispatched" style="flex: 1; opacity: 0.4;">
+                <div id="icon-dispatched" style="width: 32px; height: 32px; border-radius: 50%; background: #ccc; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;"><i class="fa-solid fa-truck"></i></div>
+                <div style="font-weight: 600;">Dispatched</div>
+              </div>
+              <div id="step-delivered" style="flex: 1; opacity: 0.4;">
+                <div id="icon-delivered" style="width: 32px; height: 32px; border-radius: 50%; background: #ccc; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;"><i class="fa-solid fa-house-circle-check"></i></div>
+                <div style="font-weight: 600;">Delivered</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
