@@ -474,6 +474,44 @@ function submitOrder(method = 'whatsapp') {
   }
 }
 
+// --- 6b. CUSTOMER INQUIRY SUBMISSION HANDLER ---
+function submitInquiry(event) {
+  if (event) event.preventDefault();
+  const name = document.getElementById('inquiryName')?.value.trim();
+  const phone = document.getElementById('inquiryPhone')?.value.trim();
+  const email = document.getElementById('inquiryEmail')?.value.trim();
+  const message = document.getElementById('inquiryMessage')?.value.trim();
+
+  if (!name || !phone || !message) {
+    alert('Please fill in your Name, Phone/WhatsApp number, and Message.');
+    return;
+  }
+
+  const inqObj = {
+    id: 'INQ-' + Math.floor(100000 + Math.random() * 900000),
+    name: name,
+    phone: phone,
+    email: email || 'N/A',
+    message: message,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  };
+
+  const localInquiries = JSON.parse(localStorage.getItem('samrina_inquiries') || '[]');
+  localInquiries.unshift(inqObj);
+  localStorage.setItem('samrina_inquiries', JSON.stringify(localInquiries));
+
+  try {
+    fetch(`${API_URL}/inquiries`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inqObj)
+    });
+  } catch (err) {}
+
+  showToast('Inquiry sent successfully to Samrina Boutique! 📩');
+  if (event && event.target) event.target.reset();
+}
+
 // --- 7. TRACK ORDER LOGIC ---
 function openTrackModal() {
   const modal = document.getElementById('trackModal');
