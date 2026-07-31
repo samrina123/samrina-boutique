@@ -47,11 +47,15 @@ html {
 }
 
 body {
+html, body {
   font-family: var(--font-sans);
   background-color: var(--ivory-bg);
   color: var(--text-main);
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
 }
 
 a {
@@ -694,20 +698,23 @@ button, input, select, textarea {
 .side-drawer {
   position: fixed;
   top: 0;
-  right: -420px;
-  width: 420px;
-  max-width: 100%;
+  right: 0;
+  width: 380px;
+  max-width: 90vw;
   height: 100%;
   background: var(--white);
   z-index: 2001;
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
-  transition: var(--transition-smooth);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  visibility: hidden;
 }
 
 .side-drawer.active {
-  right: 0;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .drawer-header {
@@ -906,9 +913,24 @@ button, input, select, textarea {
 }
 
 @media (max-width: 768px) {
+  .announcement-flex {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+    padding: 4px 0;
+  }
+  .announcement-text {
+    font-size: 0.72rem;
+    line-height: 1.3;
+  }
+  .currency-selector {
+    font-size: 0.75rem;
+    gap: 8px;
+  }
   .header-flex-row {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
+    padding: 10px 15px;
   }
   .search-box {
     width: 100%;
@@ -930,12 +952,15 @@ button, input, select, textarea {
   }
   .hero-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
   .side-drawer {
-    width: 100%;
+    width: 88vw;
+    max-width: 360px;
   }
 }
 
@@ -944,6 +969,10 @@ button, input, select, textarea {
     grid-template-columns: 1fr;
   }
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2rem;
+  }
+  .modal-card {
+    padding: 15px;
+    border-radius: 16px;
   }
 }
