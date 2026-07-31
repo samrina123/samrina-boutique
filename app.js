@@ -387,20 +387,102 @@ function toggleWishlist(btnEl, productTitle) {
   handleWishlistClick(null, btnEl, prod ? prod.id : 1);
 }
 
+function handleImageError(imgEl, category = 'saree') {
+  if (!imgEl) return;
+  imgEl.onerror = null;
+  const fallbacks = {
+    saree: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+    pret: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80',
+    formal: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
+    bridal: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+    casual: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80',
+    shalwar: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80'
+  };
+  imgEl.src = fallbacks[category] || fallbacks.saree;
+}
+
+function ensureDrawersInDOM() {
+  let overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'cartOverlay';
+    overlay.className = 'cart-overlay';
+    overlay.onclick = closeDrawers;
+    document.body.appendChild(overlay);
+  }
+
+  let cartDrawer = document.getElementById('cartDrawer');
+  if (!cartDrawer) {
+    cartDrawer = document.createElement('div');
+    cartDrawer.id = 'cartDrawer';
+    cartDrawer.className = 'cart-drawer';
+    cartDrawer.innerHTML = `
+      <div class="drawer-header">
+        <h3 class="drawer-title"><i class="fa-solid fa-bag-shopping"></i> Shopping Bag</h3>
+        <button class="drawer-close" onclick="closeDrawers()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="drawer-body" id="cartDrawerBody">
+        <p style="text-align:center; padding: 40px 0; color: var(--text-muted);">Your shopping bag is empty.</p>
+      </div>
+      <div class="drawer-footer" id="cartDrawerFooter">
+        <div class="cart-subtotal">
+          <span>Subtotal</span>
+          <span id="cartSubtotalAmount">PKR 0</span>
+        </div>
+        <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="window.location.href='shop.html'">Explore More Outfits</button>
+      </div>
+    `;
+    document.body.appendChild(cartDrawer);
+  }
+
+  let wishlistDrawer = document.getElementById('wishlistDrawer');
+  if (!wishlistDrawer) {
+    wishlistDrawer = document.createElement('div');
+    wishlistDrawer.id = 'wishlistDrawer';
+    wishlistDrawer.className = 'cart-drawer';
+    wishlistDrawer.innerHTML = `
+      <div class="drawer-header">
+        <h3 class="drawer-title"><i class="fa-regular fa-heart"></i> My Wishlist</h3>
+        <button class="drawer-close" onclick="closeDrawers()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="drawer-body" id="wishlistDrawerBody">
+        <p style="text-align:center; padding: 40px 0; color: var(--text-muted);">Your wishlist is empty.</p>
+      </div>
+    `;
+    document.body.appendChild(wishlistDrawer);
+  }
+}
+
 // Wishlist Side Drawer Handlers
 function openWishlistDrawer() {
+  ensureDrawersInDOM();
   renderWishlistDrawer();
-  document.getElementById('wishlistDrawer').classList.add('active');
-  document.getElementById('drawerOverlay').classList.add('active');
+  const drawer = document.getElementById('wishlistDrawer');
+  const overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
+  if (drawer) drawer.classList.add('active');
+  if (overlay) overlay.classList.add('active');
 }
 
 function closeWishlistDrawer() {
-  document.getElementById('wishlistDrawer').classList.remove('active');
-  document.getElementById('drawerOverlay').classList.remove('active');
+  closeDrawers();
+}
+
+function closeCartDrawer() {
+  closeDrawers();
+}
+
+function closeDrawers() {
+  const cDrawer = document.getElementById('cartDrawer');
+  const wDrawer = document.getElementById('wishlistDrawer');
+  const overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
+  if (cDrawer) cDrawer.classList.remove('active');
+  if (wDrawer) wDrawer.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
 }
 
 function renderWishlistDrawer() {
-  const container = document.getElementById('wishlistDrawerList');
+  ensureDrawersInDOM();
+  const container = document.getElementById('wishlistDrawerList') || document.getElementById('wishlistDrawerBody');
   const countSpan = document.getElementById('wishlistDrawerCount');
   if (!container) return;
 
@@ -431,8 +513,8 @@ function renderWishlistDrawer() {
       <div class="drawer-item-info">
         <h4 class="drawer-item-title">${item.title}</h4>
         <div class="drawer-item-price">${formattedPrice}</div>
-        <button class="whatsapp-order-btn" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 6px;" onclick="closeWishlistDrawer(); openOrderModal('${item.title.replace(/'/g, "\\'")}', ${item.price_pkr || 25000})">
-          <i class="fa-solid fa-bag-shopping"></i> Order Now
+        <button class="whatsapp-order-btn" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 6px;" onclick="window.location.href='product-detail.html?id=${item.id || 1}'">
+          <i class="fa-solid fa-bag-shopping"></i> View Details
         </button>
       </div>
       <button class="drawer-remove-btn" title="Remove" onclick="removeFromWishlist(${index})">
@@ -443,36 +525,21 @@ function renderWishlistDrawer() {
   });
 }
 
-function removeFromWishlist(index) {
-  wishlistItems.splice(index, 1);
-  localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
-  updateBadges();
-  renderWishlistDrawer();
-  showToast('Item removed from wishlist');
-}
-
-// Shopping Cart Side Drawer Handlers
 function openCartDrawer() {
+  ensureDrawersInDOM();
   renderCartDrawer();
-  document.getElementById('cartDrawer').classList.add('active');
-  document.getElementById('drawerOverlay').classList.add('active');
-}
-
-function closeCartDrawer() {
-  document.getElementById('cartDrawer').classList.remove('active');
-  document.getElementById('drawerOverlay').classList.remove('active');
-}
-
-function closeAllDrawers() {
-  closeWishlistDrawer();
-  closeCartDrawer();
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
+  if (drawer) drawer.classList.add('active');
+  if (overlay) overlay.classList.add('active');
 }
 
 function renderCartDrawer() {
-  const container = document.getElementById('cartDrawerList');
+  ensureDrawersInDOM();
+  const container = document.getElementById('cartDrawerList') || document.getElementById('cartDrawerBody');
   const countSpan = document.getElementById('cartDrawerCount');
   const footer = document.getElementById('cartDrawerFooter');
-  const subtotalSpan = document.getElementById('cartSubtotalText');
+  const subtotalSpan = document.getElementById('cartSubtotalAmount') || document.getElementById('cartSubtotalText');
   if (!container) return;
 
   if (countSpan) countSpan.textContent = cartItems.length;
@@ -482,8 +549,8 @@ function renderCartDrawer() {
     container.innerHTML = `
       <div style="text-align:center; padding: 50px 20px; color: var(--text-muted);">
         <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 15px;"></i>
-        <h4 style="font-family:'Playfair Display',serif; color:var(--primary-emerald); margin-bottom: 6px; font-size: 1.1rem;">Your Shopping Cart is Empty</h4>
-        <p style="font-size: 0.85rem;">Explore our boutique catalog and click "Order Now" to add items here!</p>
+        <h4 style="font-family:'Playfair Display',serif; color:var(--primary-emerald); margin-bottom: 6px; font-size: 1.1rem;">Your Shopping Bag is Empty</h4>
+        <p style="font-size: 0.85rem;">Explore our boutique catalog and click "Add to Shopping Bag"!</p>
       </div>
     `;
     if (footer) footer.style.display = 'none';
