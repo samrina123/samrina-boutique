@@ -1,20 +1,22 @@
 /* ==========================================================================
-   Samrina Boutique - Interactive JavaScript Engine (Full Production Version)
+   SAMRINA BOUTIQUE HAUTE COUTURE - CORE APPLICATION ENGINE
+   Single-Page Storefront, Sizing & Custom Measurements, WhatsApp Dispatch,
+   Wishlist, Cart & Admin Portal Database Synchronization
    ========================================================================== */
 
 const API_URL = 'http://localhost:5000/api';
-const BOUTIQUE_WHATSAPP_NUMBER = '923038873030'; 
-let currentCurrency = 'PKR';
 const PKR_TO_USD_RATE = 0.0036;
-let wishlistCount = 0;
-let cartCount = 0;
 
-let currentOrderingProduct = { title: '', pricePkr: 0, selectedSize: 'M', discountRate: 0 };
+let currentCurrency = 'PKR';
+let wishlistItems = JSON.parse(localStorage.getItem('sb_wishlist_items') || '[]');
+let cartItems = JSON.parse(localStorage.getItem('sb_cart_items') || '[]');
 let allProducts = [];
+let selectedSize = 'M';
+let currentOrderProd = null;
 
-// Full Catalogue Dataset with All User-Uploaded Local Image Files
+// --- 1. FULL PRODUCT CATALOGUE DATASET (63 Real Local Images) ---
 const FULL_PRODUCT_CATALOGUE = [
-  // --- 1. SAREES COLLECTION ---
+  // SAREES COLLECTION
   { id: 1, title: "Midnight Black Striped Sequin Saree", category: "saree", fabric: "Georgette & Sequin Blouse", price_pkr: 32500, image_url: "images/saree_black_sequin.jpg", rating: 5.0, stock_status: "MUST HAVE" },
   { id: 2, title: "Royal Velvet Heavy Embroidered Saree", category: "saree", fabric: "Pure Velvet & Puff Sleeves", price_pkr: 42000, image_url: "images/saree_velvet_black.jpg", rating: 5.0, stock_status: "HOT SELLER" },
   { id: 3, title: "Teal Emerald Cutwork Net Saree", category: "saree", fabric: "Net Lace & Silk Inner", price_pkr: 29500, image_url: "images/saree_teal_net.jpg", rating: 4.9, stock_status: "NEW ARRIVAL" },
@@ -25,8 +27,13 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 38, title: "Royal Blue Sapphire Satin Saree", category: "saree", fabric: "Royal Satin Silk", price_pkr: 34000, image_url: "images/saree_blue.jpg", rating: 4.8, stock_status: "ROYAL COUTURE" },
   { id: 39, title: "Pure Gold Embroidered Zari Saree", category: "saree", fabric: "Handcrafted Zari Silk", price_pkr: 45000, image_url: "images/saree_gold.jpg", rating: 5.0, stock_status: "BRIDAL SAREE" },
   { id: 40, title: "Deep Maroon Banarasi Brocade Saree", category: "saree", fabric: "Banarasi Woven Brocade", price_pkr: 39000, image_url: "images/saree_maroon.jpg", rating: 4.9, stock_status: "TRADITIONAL" },
+  { id: 50, title: "Peachy Blush Organza Saree", category: "saree", fabric: "Pure Organza & Mirror Work", price_pkr: 33000, image_url: "images/saree_peach.jpg", rating: 4.8, stock_status: "SPRING SAREE" },
+  { id: 51, title: "Gold Threaded Net Luxury Saree", category: "saree", fabric: "Pure Net & Zari Border", price_pkr: 36500, image_url: "images/saree_net.jpg", rating: 4.9, stock_status: "LUXURY SAREE" },
+  { id: 52, title: "Pastel Chiffon Designer Saree", category: "saree", fabric: "Embroidered Chiffon", price_pkr: 29900, image_url: "images/saree_chiffon.jpg", rating: 4.7, stock_status: "POPULAR" },
+  { id: 53, title: "Banarasi Silk Heritage Saree", category: "saree", fabric: "Traditional Handloom Brocade", price_pkr: 44000, image_url: "images/saree_banarasi.jpg", rating: 5.0, stock_status: "HERITAGE" },
+  { id: 54, title: "Kanjeevaram Gold Silk Saree", category: "saree", fabric: "South Silk & Temple Border", price_pkr: 47500, image_url: "images/saree_kanjeevaram.jpg", rating: 5.0, stock_status: "ROYAL KANJEEVARAM" },
 
-  // --- 2. TRADITIONAL SHALWAR KAMEEZ ---
+  // TRADITIONAL SHALWAR KAMEEZ
   { id: 7, title: "Sky Blue Printed Kurti & White Patiala Shalwar", category: "shalwar", fabric: "Pure Lawn & Cotton Shalwar", price_pkr: 8500, image_url: "images/shalwar_skyblue_white.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 8, title: "Crimson Red Silk Scalloped Shalwar Suit", category: "shalwar", fabric: "Raw Silk & Organza Dupatta", price_pkr: 11200, image_url: "images/shalwar_crimson_red.jpg", rating: 5.0, stock_status: "TRENDING" },
   { id: 9, title: "Midnight Black Embroidered Kurti Shalwar", category: "shalwar", fabric: "Cotton Satin & Threadwork", price_pkr: 9800, image_url: "images/shalwar_black_embroidered.jpg", rating: 4.9, stock_status: "BESTSELLER" },
@@ -35,8 +42,11 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 12, title: "Emerald Green Tulip Shalwar Suit", category: "shalwar", fabric: "Jacquard Cotton & Lace", price_pkr: 9500, image_url: "images/shalwar_tulip.jpg", rating: 4.7, stock_status: "POPULAR" },
   { id: 41, title: "Heritage Black Velvet Embroidered Shalwar Suit", category: "shalwar", fabric: "Velvet Kurti & Silk Shalwar", price_pkr: 14000, image_url: "images/shalwar_black.jpg", rating: 5.0, stock_status: "ROYAL SHALWAR" },
   { id: 42, title: "Dusty Rose Silk Scalloped Shalwar Suit", category: "shalwar", fabric: "Pure Silk & Organza Dupatta", price_pkr: 11800, image_url: "images/shalwar_rose.jpg", rating: 4.9, stock_status: "ELEGANT" },
+  { id: 55, title: "Royal Blue Embroidered Shalwar Kameez", category: "shalwar", fabric: "Silk Cotton & Dupatta", price_pkr: 10500, image_url: "images/shalwar_blue.jpg", rating: 4.8, stock_status: "POPULAR" },
+  { id: 56, title: "Velvet Heavy Embroidered Shalwar Set", category: "shalwar", fabric: "Micro Velvet & Gold Thread", price_pkr: 15500, image_url: "images/shalwar_velvet.jpg", rating: 5.0, stock_status: "VELVET LUXURY" },
+  { id: 57, title: "Classic Punjabi Patiala Suit", category: "shalwar", fabric: "Pure Cotton 3-Piece", price_pkr: 8900, image_url: "images/shalwar_patiala.jpg", rating: 4.8, stock_status: "PATIALA" },
 
-  // --- 3. CASUAL WEAR ---
+  // CASUAL WEAR
   { id: 13, title: "Mustard Orange 2-Piece Linen Set", category: "casual", fabric: "Linen Tunic & Culottes", price_pkr: 5500, image_url: "images/casual_mustard_linen.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 14, title: "Plum Purple Georgette Tunic Suit", category: "casual", fabric: "Georgette Kurti & Trousers", price_pkr: 6200, image_url: "images/casual_plum_tunic.jpg", rating: 4.8, stock_status: "TRENDING" },
   { id: 15, title: "Midnight Black Cutwork Sleeve Suit", category: "casual", fabric: "Silk Kurti & Palazzo", price_pkr: 6800, image_url: "images/casual_black_cutwork.jpg", rating: 5.0, stock_status: "BESTSELLER" },
@@ -45,8 +55,11 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 18, title: "Pastel Pink Floral Lawn Casual Suit", category: "casual", fabric: "Pure Lawn 2-Piece", price_pkr: 4800, image_url: "images/casual_pink.jpg", rating: 4.7, stock_status: "CASUAL" },
   { id: 43, title: "Olive Green Breathable Cotton Set", category: "casual", fabric: "Pure Cotton Tunic", price_pkr: 5200, image_url: "images/casual_olive.jpg", rating: 4.8, stock_status: "EVERYDAY" },
   { id: 44, title: "Teal Breeze Embroidered Casual Suit", category: "casual", fabric: "Lawn Cotton 2-Piece", price_pkr: 5600, image_url: "images/casual_teal.jpg", rating: 4.9, stock_status: "FRESH ARRIVAL" },
+  { id: 58, title: "Summer Breathable Cotton Lawn Suit", category: "casual", fabric: "Soft Lawn Printed", price_pkr: 4900, image_url: "images/casual_cotton.jpg", rating: 4.7, stock_status: "SUMMER SPECIAL" },
+  { id: 59, title: "Bright Mustard Linen Tunic", category: "casual", fabric: "Pure Linen 2-Piece", price_pkr: 5400, image_url: "images/casual_mustard.jpg", rating: 4.8, stock_status: "CASUAL" },
+  { id: 60, title: "Midnight Navy Linen Tunic Set", category: "casual", fabric: "Linen Tunic & Trouser", price_pkr: 5800, image_url: "images/casual_navy.jpg", rating: 4.8, stock_status: "ELEGANT CASUAL" },
 
-  // --- 4. PRET (READY TO WEAR) ---
+  // PRET WEAR
   { id: 19, title: "Beige Silk Neckline Embroidered Pret Suit", category: "pret", fabric: "Raw Silk & Culottes", price_pkr: 14500, image_url: "images/pret_beige_embroidered.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 20, title: "Lavender Cutwork Lace Sharara Pret Suit", category: "pret", fabric: "Silk Chiffon & Flared Sharara", price_pkr: 18500, image_url: "images/pret_lavender_sharara.jpg", rating: 5.0, stock_status: "TRENDING" },
   { id: 21, title: "Ivory Silver Mirror Work Sharara Suit", category: "pret", fabric: "Embroidered Silk & Dupatta", price_pkr: 19200, image_url: "images/pret_ivory_silver.jpg", rating: 4.9, stock_status: "BESTSELLER" },
@@ -55,7 +68,7 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 24, title: "Crimson Silk Kurti Pret Suit", category: "pret", fabric: "Pure Silk & Gold Borders", price_pkr: 13800, image_url: "images/maroon_pret.jpg", rating: 4.7, stock_status: "POPULAR" },
   { id: 45, title: "Lawn Blossom 3-Piece Printed Pret", category: "pret", fabric: "Lawn & Silk Dupatta", price_pkr: 12900, image_url: "images/lawn_pret.jpg", rating: 4.9, stock_status: "PRINTED PRET" },
 
-  // --- 5. LUXURY FORMALS ---
+  // FORMALS
   { id: 25, title: "Champagne Silk Floral Long Maxi Gown", category: "formal", fabric: "Pure Silk & Organza Dupatta", price_pkr: 28500, image_url: "images/formal_champagne_gown.jpg", rating: 4.9, stock_status: "MUST HAVE" },
   { id: 26, title: "Off-White Silver Zardozi Anarkali Maxi", category: "formal", fabric: "Net Embroidery & Pearls", price_pkr: 34000, image_url: "images/formal_offwhite_zardozi.jpg", rating: 5.0, stock_status: "TRENDING" },
   { id: 27, title: "Lilac Purple Chiffon Sequined Long Suit", category: "formal", fabric: "Chiffon Sequins & Palazzo", price_pkr: 26500, image_url: "images/formal_lilac_chiffon.jpg", rating: 4.9, stock_status: "BESTSELLER" },
@@ -66,7 +79,7 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 47, title: "Chiffon Grace Embellished Formal Maxi", category: "formal", fabric: "Pure Chiffon & Crystal Embellishments", price_pkr: 33500, image_url: "images/chiffon_formal.jpg", rating: 4.9, stock_status: "FORMAL COUTURE" },
   { id: 48, title: "Raw Silk Royal Embroidered Formal Set", category: "formal", fabric: "Raw Silk Zardozi & Velvet Dupatta", price_pkr: 37800, image_url: "images/rawsilk_formal.jpg", rating: 5.0, stock_status: "ROYAL FORMAL" },
 
-  // --- 6. BRIDAL COUTURE ---
+  // BRIDAL COUTURE
   { id: 31, title: "Deep Maroon Velvet Zardozi Barat Lehenga", category: "bridal", fabric: "Heavy Velvet Zardozi & Double Dupatta", price_pkr: 195000, image_url: "images/bridal_maroon_velvet.jpg", rating: 5.0, stock_status: "ROYAL BRIDAL" },
   { id: 32, title: "Silver Diamond Embellished Walima Gown", category: "bridal", fabric: "Net Embroidery & Pearls Walima Dress", price_pkr: 165000, image_url: "images/bridal_silver_walima.jpg", rating: 5.0, stock_status: "EXCLUSIVE WALIMA" },
   { id: 33, title: "Royal Red Flared Barat Bridal Lehenga Set", category: "bridal", fabric: "Handcrafted Dabka & Silk Lehenga", price_pkr: 185000, image_url: "images/bridal_royalred_lehenga.jpg", rating: 5.0, stock_status: "BARAT COUTURE" },
@@ -76,23 +89,29 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 49, title: "Organza Dream Zardozi Bridal Barat Set", category: "bridal", fabric: "Organza Silk & Dabka Embroidery", price_pkr: 180000, image_url: "images/organza_bridal.jpg", rating: 5.0, stock_status: "BARAT BRIDAL" }
 ];
 
-// Master Dataset Merger (Full Catalogue + LocalStorage Custom Admin Products)
+// Helper: Merges Catalogue + LocalStorage Custom Admin Products
 function getMergedProducts() {
-  const localProds = JSON.parse(localStorage.getItem('samrina_products') || '[]');
-  return [...localProds, ...FULL_PRODUCT_CATALOGUE];
+  const customProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
+  const merged = [...FULL_PRODUCT_CATALOGUE];
+  customProducts.forEach(cp => {
+    if (!merged.some(p => p.id === cp.id)) {
+      merged.unshift(cp);
+    }
+  });
+  return merged;
 }
 
-function getProductById(id) {
-  const all = getMergedProducts();
-  const searchId = String(id).trim();
-  const found = all.find(p => String(p.id).trim() === searchId);
-  return found || all[0];
-}
+// --- 2. INITIALIZATION & NAVIGATION ---
+document.addEventListener('DOMContentLoaded', () => {
+  allProducts = getMergedProducts();
+  renderProductsGrid(allProducts);
+  updateBadges();
+  ensureDrawersInDOM();
+});
 
-// 1. Mobile Menu Drawer Toggle
 function toggleMobileMenu() {
-  const navMenu = document.getElementById('navMenu');
-  if (navMenu) navMenu.classList.toggle('active');
+  const navBar = document.querySelector('.category-nav-bar');
+  if (navBar) navBar.classList.toggle('active');
 }
 
 function scrollToCategory(cat) {
@@ -104,28 +123,22 @@ function scrollToCategory(cat) {
   filterCategory(cat, btn);
 }
 
-// 2. Fetch Live Products or Filter Client Dataset
-async function loadProducts(category = 'all', search = '') {
-  const grid = document.getElementById('productsGrid');
-  if (!grid) return;
-
-  try {
-    let url = `${API_URL}/products?category=${category}`;
-    if (search) url += `&search=${encodeURIComponent(search)}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.status === 'success' && data.data.length > 0) {
-      allProducts = data.data;
-      renderProductsGrid(allProducts);
-      return;
-    }
-  } catch (err) {
-    console.warn('Backend API offline or reloading, using merged catalogue fallback.');
+function filterCategory(category, btnElement) {
+  if (btnElement) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
   }
+  loadProducts(category);
+}
 
-  // Robust Client-side Filtering if API server is restarting
+function filterProducts() {
+  const searchVal = document.getElementById('searchInput').value;
+  const activeBtn = document.querySelector('.filter-btn.active');
+  const cat = activeBtn ? activeBtn.getAttribute('onclick').match(/'([^']+)'/)[1] : 'all';
+  loadProducts(cat, searchVal);
+}
+
+async function loadProducts(category = 'all', search = '') {
   let filtered = getMergedProducts();
   if (category && category !== 'all') {
     filtered = filtered.filter(p => p.category === category);
@@ -143,22 +156,20 @@ async function loadProducts(category = 'all', search = '') {
   renderProductsGrid(allProducts);
 }
 
-// 3. Render Product Cards into DOM
+// --- 3. RENDER PRODUCT CARDS ---
 function renderProductsGrid(products) {
   const grid = document.getElementById('productsGrid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   if (products.length === 0) {
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted); font-size: 1.1rem;">No dresses found in this category.</div>';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted); font-size: 1.1rem;">No dresses found matching your criteria.</div>';
     return;
   }
 
   products.forEach(p => {
     const card = document.createElement('div');
     card.className = 'product-card';
-    card.setAttribute('data-category', p.category);
-    card.setAttribute('data-name', p.title);
-    card.setAttribute('data-price', p.price_pkr);
 
     const formattedPrice = currentCurrency === 'USD' 
       ? `$${Math.round(p.price_pkr * PKR_TO_USD_RATE).toLocaleString()}`
@@ -166,124 +177,40 @@ function renderProductsGrid(products) {
 
     const isHearted = wishlistItems.some(item => item.id === p.id || item.title === p.title);
     card.innerHTML = `
-      <div class="product-img-wrapper" onclick="window.location.href='product-detail.html?id=${p.id}'" style="cursor:pointer;">
+      <div class="product-img-wrapper" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
         <span class="product-tag">${p.stock_status || 'EXCLUSIVE'}</span>
         <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(event, this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart" ${isHearted ? 'style="color:#e74c3c;"' : ''}></i></button>
+        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(event, this, ${p.id})">
+          <i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart" ${isHearted ? 'style="color:#e74c3c;"' : ''}></i>
+        </button>
         <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
       </div>
       <div class="product-info">
-        <div class="product-rating">
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <span>(${p.rating || 5.0})</span>
-        </div>
-        <h3 class="product-title"><a href="product-detail.html?id=${p.id}">${p.title}</a></h3>
-        <div class="product-price-row">
-          <div class="product-price" data-price-pkr="${p.price_pkr}">${formattedPrice}</div>
-          <a href="product-detail.html?id=${p.id}" class="whatsapp-order-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
-            <i class="fa-solid fa-bag-shopping"></i> View Details
-          </a>
-        </div>
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
-}
-
-// 3b. Render Similar & Recommended Products Section
-function renderSimilarProducts(displayedProducts, category, search) {
-  const simSec = document.getElementById('similarProductsSection');
-  const simGrid = document.getElementById('similarGrid');
-  if (!simSec || !simGrid) return;
-
-  const displayedIds = new Set((displayedProducts || []).map(p => p.id));
-  
-  // Find candidates from full catalogue not already displayed
-  let candidates = FULL_PRODUCT_CATALOGUE.filter(p => !displayedIds.has(p.id));
-  let matched = [];
-
-  if (search) {
-    const q = search.toLowerCase();
-    matched = candidates.filter(p => 
-      p.fabric.toLowerCase().includes(q) || 
-      p.category.toLowerCase().includes(q) ||
-      p.title.toLowerCase().includes(q)
-    );
-  } else if (category && category !== 'all') {
-    // High-rated matching fabric items from other categories
-    matched = candidates.filter(p => p.rating >= 4.8);
-  }
-
-  // Fill up to 4 recommendations
-  if (matched.length < 4) {
-    const remaining = candidates.filter(p => !matched.some(m => m.id === p.id));
-    matched = matched.concat(remaining.slice(0, 4 - matched.length));
-  }
-
-  matched = matched.slice(0, 4);
-
-  if (matched.length === 0) {
-    simSec.style.display = 'none';
-    return;
-  }
-
-  simGrid.innerHTML = '';
-  matched.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    const formattedPrice = currentCurrency === 'USD' 
-      ? `$${Math.round(p.price_pkr * PKR_TO_USD_RATE).toLocaleString()}`
-      : `PKR ${p.price_pkr.toLocaleString()}`;
-
-    const isHearted = wishlistItems.some(item => item.id === p.id || item.title === p.title);
-    card.innerHTML = `
-      <div class="product-img-wrapper">
-        <span class="product-tag" style="background:var(--gold-primary); color:var(--primary-emerald);">SIMILAR ITEM</span>
-        <span class="fabric-badge"><i class="fa-solid fa-shirt"></i> ${p.fabric}</span>
-        <button class="wishlist-btn ${isHearted ? 'active' : ''}" onclick="handleWishlistClick(event, this, ${p.id})"><i class="${isHearted ? 'fa-solid' : 'fa-regular'} fa-heart" ${isHearted ? 'style="color:#e74c3c;"' : ''}></i></button>
-        <img src="${p.image_url}" alt="${p.title}" onerror="handleImageError(this, '${p.category}')">
-      </div>
-      <div class="product-info">
-        <div class="product-rating">
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <span>(${p.rating || 5.0})</span>
-        </div>
         <h3 class="product-title">${p.title}</h3>
         <div class="product-price-row">
-          <div class="product-price">${formattedPrice}</div>
-          <button class="whatsapp-order-btn" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
-            <i class="fa-solid fa-bag-shopping"></i> Order Now
+          <span class="product-price">${formattedPrice}</span>
+          <button class="order-now-btn" onclick="openOrderModal('${p.title.replace(/'/g, "\\'")}', ${p.price_pkr})">
+            Order / Details <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
       </div>
     `;
-    simGrid.appendChild(card);
+    grid.appendChild(card);
   });
-
-  simSec.style.display = 'block';
 }
 
-// 3c. Smart Image Fallback Handler for GitHub Pages
 function handleImageError(img, category) {
-  const cdnFallbacks = {
-    'saree': 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80',
-    'shalwar': 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=600&q=80',
-    'casual': 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80',
-    'pret': 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80',
-    'formal': 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=600&q=80',
-    'bridal': 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80'
+  if (!img) return;
+
+  const localFallbacks = {
+    'saree': 'images/saree_black_sequin.jpg',
+    'shalwar': 'images/shalwar_skyblue_white.jpg',
+    'casual': 'images/casual_mustard_linen.jpg',
+    'pret': 'images/pret_beige_embroidered.jpg',
+    'formal': 'images/formal_champagne_gown.jpg',
+    'bridal': 'images/bridal_maroon_velvet.jpg'
   };
 
-  // 1. Try stripping 'images/' prefix if uploaded directly to root on GitHub
   if (!img.dataset.triedRoot) {
     img.dataset.triedRoot = 'true';
     const rawSrc = img.getAttribute('src') || '';
@@ -293,99 +220,34 @@ function handleImageError(img, category) {
     }
   }
 
-  // 2. Try relative ./ path
-  if (!img.dataset.triedRelative) {
-    img.dataset.triedRelative = 'true';
-    const currentSrc = img.getAttribute('src') || '';
-    if (!currentSrc.startsWith('./')) {
-      img.src = './' + currentSrc;
-      return;
-    }
-  }
-
-  // 3. Instant Category High-Res CDN Fallback so pictures NEVER break on GitHub Pages
-  img.src = cdnFallbacks[category] || cdnFallbacks['formal'];
+  img.onerror = null;
+  img.src = localFallbacks[category] || 'images/hero_banner.jpg';
 }
 
-// 4. Currency Switcher Logic (PKR <-> USD)
+// --- 4. CURRENCY SWITCHER ---
 function setCurrency(currency) {
   if (currentCurrency === currency) return;
   currentCurrency = currency;
-
   document.getElementById('btn-pkr').classList.toggle('active', currency === 'PKR');
   document.getElementById('btn-usd').classList.toggle('active', currency === 'USD');
-
   renderProductsGrid(allProducts);
-  showToast(`Currency changed to ${currency}`);
+  showToast(`Currency set to ${currency}`);
 }
 
-// 5. Category Filter
-function filterCategory(category, buttonEl) {
-  const buttons = document.querySelectorAll('.filter-btn');
-  buttons.forEach(btn => btn.classList.remove('active'));
-
-  if (buttonEl && buttonEl.classList) {
-    buttonEl.classList.add('active');
-  } else {
-    const targetBtn = Array.from(buttons).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${category}'`));
-    if (targetBtn) targetBtn.classList.add('active');
-  }
-
-  const section = document.getElementById('collections');
-  if (section) {
-    section.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  loadProducts(category);
-}
-
-// 6. Live Search Filter
-function filterProducts() {
-  const query = document.getElementById('searchInput').value;
-  loadProducts('all', query);
-}
-
-// Wishlist & Cart State arrays (Synced with LocalStorage)
-let wishlistItems = JSON.parse(localStorage.getItem('sb_wishlist_items') || '[]');
-let cartItems = JSON.parse(localStorage.getItem('sb_cart_items') || '[]');
-
+// --- 5. WISHLIST & SHOPPING CART DRAWERS ---
 function updateBadges() {
-  const wEl = document.getElementById('wishlistCount');
-  const cEl = document.getElementById('cartCount');
-  if (wEl) wEl.textContent = wishlistItems.length;
-  if (cEl) cEl.textContent = cartItems.length;
+  const wCount = document.getElementById('wishlistCount');
+  const cCount = document.getElementById('cartCount');
+  if (wCount) wCount.innerText = wishlistItems.length;
+  if (cCount) cCount.innerText = cartItems.length;
 }
 
-// 7. Wishlist Heart Toggle & Drawer Sync
 function handleWishlistClick(event, btnEl, productId) {
-  if (event) {
-    if (typeof event.stopPropagation === 'function') event.stopPropagation();
-    if (typeof event.preventDefault === 'function') event.preventDefault();
-  }
-
-  let id = parseInt(productId);
-  if (isNaN(id) && typeof btnEl === 'number') {
-    id = btnEl;
-    btnEl = null;
-  }
-
-  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.id === id);
-
-  if (!prod && btnEl) {
-    const btn = btnEl.closest ? (btnEl.closest('.wishlist-btn') || btnEl) : btnEl;
-    const card = btn.closest ? btn.closest('.product-card') : null;
-    if (card) {
-      const title = card.getAttribute('data-name') || card.querySelector('.product-title')?.textContent;
-      prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === title);
-    }
-  }
-
-  if (!prod) {
-    prod = FULL_PRODUCT_CATALOGUE[0];
-  }
+  if (event) event.stopPropagation();
+  let prod = getMergedProducts().find(p => p.id === productId);
+  if (!prod) prod = FULL_PRODUCT_CATALOGUE[0];
 
   const existingIndex = wishlistItems.findIndex(item => item.id === prod.id || item.title === prod.title);
-
   if (existingIndex > -1) {
     wishlistItems.splice(existingIndex, 1);
     showToast('Removed from Wishlist');
@@ -396,295 +258,106 @@ function handleWishlistClick(event, btnEl, productId) {
 
   localStorage.setItem('sb_wishlist_items', JSON.stringify(wishlistItems));
   updateBadges();
-  
-  // Instant re-render so all heart buttons update to exact red solid state
-  if (typeof allProducts !== 'undefined' && allProducts.length > 0) {
-    renderProductsGrid(allProducts);
-  }
+  renderProductsGrid(allProducts);
   renderWishlistDrawer();
 }
 
-function toggleWishlist(btnEl, productTitle) {
-  const prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === productTitle);
-  handleWishlistClick(null, btnEl, prod ? prod.id : 1);
-}
-
-function handleImageError(imgEl, category = 'saree') {
-  if (!imgEl) return;
-  imgEl.onerror = null;
-  const fallbacks = {
-    saree: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
-    pret: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80',
-    formal: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
-    bridal: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
-    casual: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80',
-    shalwar: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80'
-  };
-  imgEl.src = fallbacks[category] || fallbacks.saree;
-}
-
-function ensureDrawersInDOM() {
-  let overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'cartOverlay';
-    overlay.className = 'cart-overlay';
-    overlay.onclick = closeDrawers;
-    document.body.appendChild(overlay);
-  }
-
-  let cartDrawer = document.getElementById('cartDrawer');
-  if (!cartDrawer) {
-    cartDrawer = document.createElement('div');
-    cartDrawer.id = 'cartDrawer';
-    cartDrawer.className = 'cart-drawer';
-    cartDrawer.innerHTML = `
-      <div class="drawer-header">
-        <h3 class="drawer-title"><i class="fa-solid fa-bag-shopping"></i> Shopping Bag</h3>
-        <button class="drawer-close" onclick="closeDrawers()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="drawer-body" id="cartDrawerBody">
-        <p style="text-align:center; padding: 40px 0; color: var(--text-muted);">Your shopping bag is empty.</p>
-      </div>
-      <div class="drawer-footer" id="cartDrawerFooter">
-        <div class="cart-subtotal">
-          <span>Subtotal</span>
-          <span id="cartSubtotalAmount">PKR 0</span>
-        </div>
-        <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="window.location.href='shop.html'">Explore More Outfits</button>
-      </div>
-    `;
-    document.body.appendChild(cartDrawer);
-  }
-
-  let wishlistDrawer = document.getElementById('wishlistDrawer');
-  if (!wishlistDrawer) {
-    wishlistDrawer = document.createElement('div');
-    wishlistDrawer.id = 'wishlistDrawer';
-    wishlistDrawer.className = 'cart-drawer';
-    wishlistDrawer.innerHTML = `
-      <div class="drawer-header">
-        <h3 class="drawer-title"><i class="fa-regular fa-heart"></i> My Wishlist</h3>
-        <button class="drawer-close" onclick="closeDrawers()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="drawer-body" id="wishlistDrawerBody">
-        <p style="text-align:center; padding: 40px 0; color: var(--text-muted);">Your wishlist is empty.</p>
-      </div>
-    `;
-    document.body.appendChild(wishlistDrawer);
-  }
-
-  let orderModal = document.getElementById('orderModal');
-  if (!orderModal) {
-    orderModal = document.createElement('div');
-    orderModal.id = 'orderModal';
-    orderModal.className = 'modal-overlay';
-    orderModal.innerHTML = `
-      <div class="modal-card">
-        <button class="modal-close" onclick="closeOrderModal()">&times;</button>
-        <div class="modal-info-col" style="width: 100%; padding: 30px;">
-          <h3 class="modal-title" id="orderModalTitle">Complete Your Order</h3>
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-            <p class="modal-price" id="orderModalPrice" style="margin-bottom: 0;">PKR 0</p>
-            <span id="discountTag" style="display:none; background:#27ae60; color:#fff; font-size:0.75rem; font-weight:700; padding:4px 8px; border-radius:12px;">PROMO APPLIED</span>
-          </div>
-          
-          <form id="checkoutForm" onsubmit="submitOrder(event)">
-            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
-              <div>
-                <label style="font-size: 0.85rem; font-weight: 600;">Sizing Option:</label>
-                <div class="size-options" style="margin-top: 6px;">
-                  <button type="button" class="size-btn" onclick="selectSize('S', this)">S</button>
-                  <button type="button" class="size-btn active" onclick="selectSize('M', this)">M</button>
-                  <button type="button" class="size-btn" onclick="selectSize('L', this)">L</button>
-                  <button type="button" class="size-btn" onclick="selectSize('XL', this)">XL</button>
-                  <button type="button" class="size-btn" onclick="toggleCustomSizing(this)">Custom Stitching</button>
-                </div>
-              </div>
-
-              <div id="customSizingBox" style="display: none; background: var(--ivory-bg); padding: 14px; border-radius: 12px; border: 1px solid var(--border-light);">
-                <p style="font-size: 0.8rem; font-weight: 700; color: var(--primary-emerald); margin-bottom: 8px;"><i class="fa-solid fa-tape"></i> Custom Measurements (in Inches):</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                  <input type="text" id="mChest" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Chest (e.g. 36 in)">
-                  <input type="text" id="mWaist" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Waist (e.g. 30 in)">
-                  <input type="text" id="mHips" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Hips (e.g. 40 in)">
-                  <input type="text" id="mLength" class="search-input" style="width:100%; font-size:0.8rem;" placeholder="Shirt Length (e.g. 48 in)">
-                </div>
-              </div>
-
-              <div style="display: flex; gap: 8px;">
-                <input type="text" id="promoInput" class="search-input" style="flex-grow: 1; border-radius: 8px;" placeholder="Promo code (e.g. SAMRINA10)">
-                <button type="button" class="btn-outline" onclick="applyPromoCode()" style="padding: 8px 16px; font-size: 0.85rem;">Apply</button>
-              </div>
-              
-              <div>
-                <label style="font-size: 0.85rem; font-weight: 600;">Full Name *</label>
-                <input type="text" id="custName" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="e.g. Fatima Ali" required>
-              </div>
-              
-              <div>
-                <label style="font-size: 0.85rem; font-weight: 600;">Phone / WhatsApp *</label>
-                <input type="tel" id="custPhone" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="e.g. 0300 1234567" required>
-              </div>
-
-              <div>
-                <label style="font-size: 0.85rem; font-weight: 600;">Delivery Address *</label>
-                <textarea id="custAddress" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px; height: 60px; resize: none;" placeholder="House number, Street, City" required></textarea>
-              </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <button type="submit" onclick="window.orderChannel='whatsapp'" class="btn-primary" style="width: 100%; justify-content: center; background: #25D366; border-color: #25D366; font-size: 0.95rem;">
-                <i class="fa-brands fa-whatsapp"></i> Confirm & Order via WhatsApp
-              </button>
-              <button type="submit" onclick="window.orderChannel='gmail'" class="btn-primary" style="width: 100%; justify-content: center; background: #EA4335; border-color: #EA4335; font-size: 0.95rem;">
-                <i class="fa-solid fa-envelope"></i> Confirm & Order via Gmail
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(orderModal);
-  }
-}
-
-// Wishlist Side Drawer Handlers
 function openWishlistDrawer() {
-  ensureDrawersInDOM();
   renderWishlistDrawer();
   const drawer = document.getElementById('wishlistDrawer');
-  const overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
+  const overlay = document.getElementById('drawerOverlay') || document.getElementById('cartOverlay');
   if (drawer) drawer.classList.add('active');
   if (overlay) overlay.classList.add('active');
 }
 
 function closeWishlistDrawer() {
-  closeDrawers();
-}
-
-function closeCartDrawer() {
-  closeDrawers();
-}
-
-function closeDrawers() {
-  const cDrawer = document.getElementById('cartDrawer');
-  const wDrawer = document.getElementById('wishlistDrawer');
-  const overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
-  if (cDrawer) cDrawer.classList.remove('active');
-  if (wDrawer) wDrawer.classList.remove('active');
+  const drawer = document.getElementById('wishlistDrawer');
+  const overlay = document.getElementById('drawerOverlay') || document.getElementById('cartOverlay');
+  if (drawer) drawer.classList.remove('active');
   if (overlay) overlay.classList.remove('active');
 }
 
 function renderWishlistDrawer() {
-  ensureDrawersInDOM();
-  const container = document.getElementById('wishlistDrawerList') || document.getElementById('wishlistDrawerBody');
+  const list = document.getElementById('wishlistDrawerList');
   const countSpan = document.getElementById('wishlistDrawerCount');
-  if (!container) return;
-
-  if (countSpan) countSpan.textContent = wishlistItems.length;
-  container.innerHTML = '';
+  if (countSpan) countSpan.innerText = wishlistItems.length;
+  if (!list) return;
 
   if (wishlistItems.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding: 50px 20px; color: var(--text-muted);">
-        <i class="fa-regular fa-heart" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 15px;"></i>
-        <h4 style="font-family:'Playfair Display',serif; color:var(--primary-emerald); margin-bottom: 6px; font-size: 1.1rem;">Your Wishlist is Empty</h4>
-        <p style="font-size: 0.85rem;">Click the heart icon on any dress to save your favorites here!</p>
-      </div>
-    `;
+    list.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">Your wishlist is empty.</div>';
     return;
   }
 
-  wishlistItems.forEach((item, index) => {
-    const card = document.createElement('div');
-    card.className = 'drawer-item-card';
-
-    const formattedPrice = currentCurrency === 'USD' 
-      ? `$${Math.round((item.price_pkr || 25000) * PKR_TO_USD_RATE).toLocaleString()}`
-      : `PKR ${(item.price_pkr || 25000).toLocaleString()}`;
-
-    card.innerHTML = `
-      <img src="${item.image_url || 'images/emerald_gown.jpg'}" class="drawer-item-img" onerror="handleImageError(this, '${item.category || 'formal'}')">
-      <div class="drawer-item-info">
-        <h4 class="drawer-item-title">${item.title}</h4>
-        <div class="drawer-item-price">${formattedPrice}</div>
-        <button class="whatsapp-order-btn" style="padding: 4px 10px; font-size: 0.75rem; margin-top: 6px;" onclick="window.location.href='product-detail.html?id=${item.id || 1}'">
-          <i class="fa-solid fa-bag-shopping"></i> View Details
-        </button>
+  list.innerHTML = wishlistItems.map(item => `
+    <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
+      <img src="${item.image_url}" alt="${item.title}" style="width: 65px; height: 80px; object-fit: cover; border-radius: 8px;">
+      <div style="flex-grow: 1;">
+        <h4 style="font-size: 0.9rem; font-family: var(--font-serif); color: var(--dark-charcoal); margin-bottom: 4px;">${item.title}</h4>
+        <span style="color: var(--primary-emerald); font-weight: 700; font-size: 0.85rem;">PKR ${item.price_pkr.toLocaleString()}</span>
       </div>
-      <button class="drawer-remove-btn" title="Remove" onclick="removeFromWishlist(${index})">
-        <i class="fa-solid fa-trash-can"></i>
-      </button>
-    `;
-    container.appendChild(card);
-  });
+      <button onclick="handleWishlistClick(null, null, ${item.id})" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.1rem;"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  `).join('');
 }
 
 function openCartDrawer() {
-  ensureDrawersInDOM();
   renderCartDrawer();
   const drawer = document.getElementById('cartDrawer');
-  const overlay = document.getElementById('cartOverlay') || document.getElementById('drawerOverlay');
+  const overlay = document.getElementById('drawerOverlay') || document.getElementById('cartOverlay');
   if (drawer) drawer.classList.add('active');
   if (overlay) overlay.classList.add('active');
 }
 
-function renderCartDrawer() {
-  ensureDrawersInDOM();
-  const container = document.getElementById('cartDrawerList') || document.getElementById('cartDrawerBody');
-  const countSpan = document.getElementById('cartDrawerCount');
-  const footer = document.getElementById('cartDrawerFooter');
-  const subtotalSpan = document.getElementById('cartSubtotalAmount') || document.getElementById('cartSubtotalText');
-  if (!container) return;
+function closeCartDrawer() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('drawerOverlay') || document.getElementById('cartOverlay');
+  if (drawer) drawer.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
+}
 
-  if (countSpan) countSpan.textContent = cartItems.length;
-  container.innerHTML = '';
+function closeAllDrawers() {
+  closeWishlistDrawer();
+  closeCartDrawer();
+}
+
+function addToCart(title, pricePkr, size = 'M') {
+  const prod = getMergedProducts().find(p => p.title === title) || { title, price_pkr: pricePkr, image_url: 'images/hero_banner.jpg' };
+  cartItems.push({ ...prod, selectedSize: size });
+  localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
+  updateBadges();
+  showToast('Item added to Shopping Bag 🛍️');
+}
+
+function renderCartDrawer() {
+  const list = document.getElementById('cartDrawerList');
+  const countSpan = document.getElementById('cartDrawerCount');
+  const subtotalText = document.getElementById('cartSubtotalText');
+  if (countSpan) countSpan.innerText = cartItems.length;
+  if (!list) return;
 
   if (cartItems.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding: 50px 20px; color: var(--text-muted);">
-        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 15px;"></i>
-        <h4 style="font-family:'Playfair Display',serif; color:var(--primary-emerald); margin-bottom: 6px; font-size: 1.1rem;">Your Shopping Bag is Empty</h4>
-        <p style="font-size: 0.85rem;">Explore our boutique catalog and click "Add to Shopping Bag"!</p>
-      </div>
-    `;
-    if (footer) footer.style.display = 'none';
+    list.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">Your shopping bag is empty.</div>';
+    if (subtotalText) subtotalText.innerText = 'PKR 0';
     return;
   }
 
-  if (footer) footer.style.display = 'block';
-
-  let totalPkr = 0;
-  cartItems.forEach((item, index) => {
-    totalPkr += item.pricePkr || item.price_pkr || 25000;
-    const card = document.createElement('div');
-    card.className = 'drawer-item-card';
-
-    const itemPrice = item.pricePkr || item.price_pkr || 25000;
-    const formattedPrice = currentCurrency === 'USD' 
-      ? `$${Math.round(itemPrice * PKR_TO_USD_RATE).toLocaleString()}`
-      : `PKR ${itemPrice.toLocaleString()}`;
-
-    card.innerHTML = `
-      <img src="${item.image_url || 'images/emerald_gown.jpg'}" class="drawer-item-img" onerror="handleImageError(this, '${item.category || 'formal'}')">
-      <div class="drawer-item-info">
-        <h4 class="drawer-item-title">${item.title}</h4>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">Size: ${item.selectedSize || 'M'}</div>
-        <div class="drawer-item-price" style="margin-top: 4px;">${formattedPrice}</div>
+  let total = 0;
+  list.innerHTML = cartItems.map((item, idx) => {
+    total += item.price_pkr;
+    return `
+      <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
+        <img src="${item.image_url}" alt="${item.title}" style="width: 65px; height: 80px; object-fit: cover; border-radius: 8px;">
+        <div style="flex-grow: 1;">
+          <h4 style="font-size: 0.9rem; font-family: var(--font-serif); color: var(--dark-charcoal); margin-bottom: 4px;">${item.title}</h4>
+          <span style="font-size: 0.75rem; background: var(--ivory-bg); padding: 2px 8px; border-radius: 4px;">Size: ${item.selectedSize || 'M'}</span>
+          <div style="color: var(--primary-emerald); font-weight: 700; font-size: 0.85rem; margin-top: 4px;">PKR ${item.price_pkr.toLocaleString()}</div>
+        </div>
+        <button onclick="removeFromCart(${idx})" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.1rem;"><i class="fa-solid fa-trash"></i></button>
       </div>
-      <button class="drawer-remove-btn" title="Remove" onclick="removeFromCart(${index})">
-        <i class="fa-solid fa-trash-can"></i>
-      </button>
     `;
-    container.appendChild(card);
-  });
+  }).join('');
 
-  const formattedTotal = currentCurrency === 'USD'
-    ? `$${Math.round(totalPkr * PKR_TO_USD_RATE).toLocaleString()}`
-    : `PKR ${totalPkr.toLocaleString()}`;
-
-  if (subtotalSpan) subtotalSpan.textContent = formattedTotal;
+  if (subtotalText) subtotalText.innerText = `PKR ${total.toLocaleString()}`;
 }
 
 function removeFromCart(index) {
@@ -692,305 +365,164 @@ function removeFromCart(index) {
   localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
   updateBadges();
   renderCartDrawer();
-  showToast('Item removed from cart');
 }
 
 function proceedCartCheckout() {
-  if (cartItems.length === 0) return;
-  closeCartDrawer();
+  if (cartItems.length === 0) {
+    showToast('Your bag is empty!');
+    return;
+  }
   const firstItem = cartItems[0];
-  openOrderModal(firstItem.title, firstItem.pricePkr || firstItem.price_pkr || 25000);
+  closeCartDrawer();
+  openOrderModal(firstItem.title, firstItem.price_pkr);
 }
 
-// 8. Order Checkout Modal Logic & Custom Sizing
+// --- 6. IN-PAGE SIZING & ORDER MODAL HANDLERS ---
+function selectSize(btnElement, sizeStr) {
+  document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+  btnElement.classList.add('active');
+  selectedSize = sizeStr;
+
+  const customBox = document.getElementById('customFitInputs');
+  if (customBox) {
+    customBox.style.display = sizeStr === 'Bespoke Custom Fit' ? 'block' : 'none';
+  }
+}
+
 function openOrderModal(title, pricePkr) {
-  ensureDrawersInDOM();
-  let prod = FULL_PRODUCT_CATALOGUE.find(p => p.title === title) || { image_url: 'images/emerald_gown.jpg', category: 'formal' };
-  currentOrderingProduct = { title: title, pricePkr: pricePkr, selectedSize: 'M', discountRate: 0, image_url: prod.image_url, category: prod.category };
-  
-  // Add item to Cart drawer list automatically
-  const existsInCart = cartItems.some(c => c.title === title);
-  if (!existsInCart) {
-    cartItems.push(currentOrderingProduct);
-    localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
-    updateBadges();
+  const modal = document.getElementById('orderModal');
+  const titleEl = document.getElementById('modalDressTitle');
+  const priceEl = document.getElementById('modalDressPrice');
+  const imgEl = document.getElementById('modalDressImg');
+
+  currentOrderProd = getMergedProducts().find(p => p.title === title) || { title, price_pkr: pricePkr, image_url: 'images/hero_banner.jpg', category: 'saree' };
+
+  if (titleEl) titleEl.innerText = title;
+  if (priceEl) priceEl.innerText = `PKR ${pricePkr.toLocaleString()}`;
+  if (imgEl) {
+    imgEl.src = currentOrderProd.image_url;
+    imgEl.onerror = () => handleImageError(imgEl, currentOrderProd.category);
   }
 
-  const titleEl = document.getElementById('orderModalTitle');
-  if (titleEl) titleEl.textContent = `Order: ${title}`;
-  updateModalPriceDisplay(pricePkr);
-  const tagEl = document.getElementById('discountTag');
-  if (tagEl) tagEl.style.display = 'none';
-
-  const modal = document.getElementById('orderModal');
   if (modal) modal.classList.add('active');
 }
 
 function closeOrderModal() {
-  document.getElementById('orderModal').classList.remove('active');
+  const modal = document.getElementById('orderModal');
+  if (modal) modal.classList.remove('active');
 }
 
-function selectSize(size, btnEl) {
-  currentOrderingProduct.selectedSize = size;
-  document.getElementById('customSizingBox').style.display = 'none';
-  const btns = btnEl.parentElement.querySelectorAll('.size-btn');
-  btns.forEach(b => b.classList.remove('active'));
-  btnEl.classList.add('active');
-}
+function submitOrder(method = 'whatsapp') {
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const dress = document.getElementById('modalDressTitle').innerText;
+  const price = document.getElementById('modalDressPrice').innerText;
 
-function toggleCustomSizing(btnEl) {
-  currentOrderingProduct.selectedSize = 'Custom';
-  document.getElementById('customSizingBox').style.display = 'block';
-  const btns = btnEl.parentElement.querySelectorAll('.size-btn');
-  btns.forEach(b => b.classList.remove('active'));
-  btnEl.classList.add('active');
-}
-
-// 9. Promo Code System (Works both with Backend API & Serverless GitHub Pages)
-async function applyPromoCode() {
-  const code = (document.getElementById('promoInput').value || '').trim().toUpperCase();
-  if (!code) return;
-
-  try {
-    const res = await fetch(`${API_URL}/promo/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: code })
-    });
-    const data = await res.json();
-
-    if (data.status === 'success') {
-      currentOrderingProduct.discountRate = data.discount_rate;
-      const discountedPrice = currentOrderingProduct.pricePkr * (1 - data.discount_rate);
-      updateModalPriceDisplay(discountedPrice);
-      document.getElementById('discountTag').style.display = 'inline-block';
-      showToast(data.message);
-      return;
-    }
-  } catch (err) {
-    console.warn('API promo check offline, using client-side promo validator.');
+  if (!name || !phone || !address) {
+    alert('Please enter your Name, Phone/WhatsApp number, and Delivery Address to place your order.');
+    return;
   }
 
-  // Client-side Promo Fallback for GitHub Pages
-  const PROMO_CODES = {
-    'SAMRINA10': { rate: 0.10, msg: '10% Discount Applied! 🎉' },
-    'EID20': { rate: 0.20, msg: '20% Eid Discount Applied! 🌙' },
-    'WELCOME5': { rate: 0.05, msg: '5% Welcome Discount Applied! ✨' }
-  };
-
-  if (PROMO_CODES[code]) {
-    const promoInfo = PROMO_CODES[code];
-    currentOrderingProduct.discountRate = promoInfo.rate;
-    const discountedPrice = currentOrderingProduct.pricePkr * (1 - promoInfo.rate);
-    updateModalPriceDisplay(discountedPrice);
-    document.getElementById('discountTag').style.display = 'inline-block';
-    showToast(promoInfo.msg);
-  } else {
-    showToast('Invalid promo code. Try SAMRINA10 or EID20');
-  }
-}
-
-function updateModalPriceDisplay(pricePkr) {
-  document.getElementById('orderModalPrice').textContent = currentCurrency === 'USD' 
-    ? `$${Math.round(pricePkr * PKR_TO_USD_RATE).toLocaleString()}` 
-    : `PKR ${pricePkr.toLocaleString()}`;
-}
-
-// 10. Submit Customer Order (Works 100% on GitHub Pages via Direct WhatsApp & Local Storage)
-async function submitOrder(e) {
-  e.preventDefault();
-
-  const name = document.getElementById('custName').value;
-  const phone = document.getElementById('custPhone').value;
-  const address = document.getElementById('custAddress').value;
-
-  let customMeasurements = '';
-  if (currentOrderingProduct.selectedSize === 'Custom') {
-    const c = document.getElementById('mChest').value;
-    const w = document.getElementById('mWaist').value;
-    const h = document.getElementById('mHips').value;
-    const l = document.getElementById('mLength').value;
-    customMeasurements = `Chest: ${c || 'Std'}, Waist: ${w || 'Std'}, Hips: ${h || 'Std'}, Length: ${l || 'Std'}`;
+  let measurementsInfo = '';
+  if (selectedSize === 'Bespoke Custom Fit') {
+    const chest = document.getElementById('mChest')?.value || 'Std';
+    const waist = document.getElementById('mWaist')?.value || 'Std';
+    const hips = document.getElementById('mHips')?.value || 'Std';
+    const length = document.getElementById('mLength')?.value || 'Std';
+    measurementsInfo = `\n❖ CUSTOM MEASUREMENTS:\n- Chest: ${chest}" | Waist: ${waist}" | Hips: ${hips}" | Length: ${length}"`;
   }
 
-  const finalPrice = currentOrderingProduct.pricePkr * (1 - currentOrderingProduct.discountRate);
-  const generatedOrderNum = `SB-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+  const orderNum = 'SB-' + Math.floor(100000 + Math.random() * 900000);
 
-  const orderPayload = {
-    order_number: generatedOrderNum,
+  // Sync with LocalStorage Admin Database
+  const newOrderObj = {
+    order_number: orderNum,
     customer_name: name,
     customer_phone: phone,
-    customer_address: address,
-    product_title: currentOrderingProduct.title,
-    size: currentOrderingProduct.selectedSize,
-    custom_measurements: customMeasurements,
-    total_price_pkr: finalPrice,
-    discount_applied: currentOrderingProduct.discountRate,
-    order_status: 'Pending'
+    delivery_address: address,
+    dress_title: dress,
+    size: selectedSize,
+    total_price_pkr: parseInt(price.replace(/[^0-9]/g, '')) || 0,
+    status: 'Verified & Tailoring',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   };
 
-  let savedOrderNumber = generatedOrderNum;
-
-  // 1. Try saving to Flask Backend API if online
-  try {
-    const res = await fetch(`${API_URL}/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderPayload)
-    });
-    
-    const data = await res.json();
-    if (data.status === 'success') {
-      savedOrderNumber = data.order_number;
-    }
-  } catch (err) {
-    console.warn('Backend API offline (GitHub Pages mode). Saving order to Local Storage & WhatsApp.');
-  }
-
-  // 2. Save order to LocalStorage for GitHub Pages Admin/Tracking
-  let localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
-  localOrders.unshift(orderPayload);
+  const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+  localOrders.unshift(newOrderObj);
   localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
 
-  // 3. Close Modal & Update Cart UI
-  closeOrderModal();
-  cartCount++;
-  document.getElementById('cartCount').textContent = cartCount;
+  if (method === 'whatsapp') {
+    const text = `❖ NEW ORDER - SAMRINA BOUTIQUE ❖\n` +
+      `Order Ref: ${orderNum}\n` +
+      `Item: ${dress}\n` +
+      `Price: ${price}\n` +
+      `Size: ${selectedSize}${measurementsInfo}\n\n` +
+      `❖ CUSTOMER DETAILS:\n` +
+      `Name: ${name}\n` +
+      `Phone: ${phone}\n` +
+      `Address: ${address}\n\n` +
+      `Thank you! Please confirm my order placement.`;
 
-  // 4. Format & Trigger Direct WhatsApp / Gmail Order Message
-  const formattedPriceText = currentCurrency === 'USD'
-    ? `$${Math.round(finalPrice * PKR_TO_USD_RATE).toLocaleString()}`
-    : `PKR ${finalPrice.toLocaleString()}`;
-
-  const orderText = 
-`❖ NEW ORDER - SAMRINA BOUTIQUE ❖
-
-Order No: ${savedOrderNumber}
-Dress: ${currentOrderingProduct.title}
-Size: ${currentOrderingProduct.selectedSize} ${customMeasurements ? ' (' + customMeasurements + ')' : ''}
-Total Bill: ${formattedPriceText} ${currentOrderingProduct.discountRate > 0 ? '(Promo Discount Applied!)' : ''}
-
------------------------------------
-❖ CUSTOMER DETAILS:
-Name: ${name}
-Phone: ${phone}
-Address: ${address}
-
-Please confirm my order and stitching schedule. Thank you!`;
-
-  if (window.orderChannel === 'gmail') {
-    showToast(`Order #${savedOrderNumber} Confirmed! Opening Gmail... 📧`);
-    const targetEmail = 'samrinamughal456@gmail.com';
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${targetEmail}&su=${encodeURIComponent(`NEW ORDER #${savedOrderNumber} - ${currentOrderingProduct.title}`)}&body=${encodeURIComponent(orderText)}`;
-    window.location.href = gmailUrl;
-  } else {
-    showToast(`Order #${savedOrderNumber} Confirmed! Opening WhatsApp... 🛍️`);
-    const waUrl = `https://wa.me/${BOUTIQUE_WHATSAPP_NUMBER}?text=${encodeURIComponent(orderText)}`;
+    const waUrl = `https://api.whatsapp.com/send?phone=923038873030&text=${encodeURIComponent(text)}`;
+    closeOrderModal();
+    showToast('Redirecting to WhatsApp...');
     window.location.href = waUrl;
-  }
-}
-
-// 11. Live Order Tracking Modal Handlers
-function openTrackModal() {
-  document.getElementById('trackModal').classList.add('active');
-}
-
-function closeTrackModal() {
-  document.getElementById('trackModal').classList.remove('active');
-}
-
-async function searchTrackOrder() {
-  const orderNum = (document.getElementById('trackNumberInput').value || '').trim();
-  if (!orderNum) return;
-
-  // 1. Try REST API tracking
-  try {
-    const res = await fetch(`${API_URL}/orders/track/${encodeURIComponent(orderNum)}`);
-    const data = await res.json();
-
-    if (data.status === 'success') {
-      const ord = data.data;
-      displayTrackResult(ord);
-      return;
-    }
-  } catch (err) {
-    console.warn('API tracking unavailable, searching local storage.');
-  }
-
-  // 2. LocalStorage tracking fallback for GitHub Pages
-  const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
-  const matched = localOrders.find(o => o.order_number.toLowerCase() === orderNum.toLowerCase());
-
-  if (matched) {
-    displayTrackResult(matched);
   } else {
-    showToast('Order number not found. Check again!');
+    alert(`Order ${orderNum} Placed Successfully via Email! Customer support will reach out to ${phone}.`);
+    closeOrderModal();
   }
 }
 
-function displayTrackResult(ord) {
-  document.getElementById('tOrdNum').textContent = `Order #${ord.order_number}`;
-  document.getElementById('tStatusBadge').textContent = ord.order_status || 'Confirmed';
-  document.getElementById('tCustName').textContent = ord.customer_name;
-  document.getElementById('tDress').textContent = `${ord.product_title} (${ord.size})`;
-  document.getElementById('tPrice').textContent = `PKR ${ord.total_price_pkr.toLocaleString()}`;
-
-  document.getElementById('trackResultBox').style.display = 'block';
+// --- 7. TRACK ORDER LOGIC ---
+function openTrackModal() {
+  const modal = document.getElementById('trackModal');
+  if (modal) modal.classList.add('active');
 }
 
-// 12. Toast Notification Handler
-function showToast(message) {
-  const toast = document.getElementById('toast');
-  const toastMsg = document.getElementById('toastMessage');
+function searchTrackOrder() {
+  const input = document.getElementById('trackOrderInput').value.trim();
+  const box = document.getElementById('trackResultBox');
+  if (!input) {
+    alert('Please enter your Order Number (e.g. SB-100201)');
+    return;
+  }
 
-  toastMsg.textContent = message;
+  const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+  const match = localOrders.find(o => o.order_number.toLowerCase() === input.toLowerCase());
+
+  if (match) {
+    document.getElementById('tOrdNum').innerText = `Order #${match.order_number}`;
+    document.getElementById('tCustName').innerText = match.customer_name;
+    document.getElementById('tDress').innerText = match.dress_title;
+    document.getElementById('tPrice').innerText = `PKR ${match.total_price_pkr.toLocaleString()}`;
+    if (box) box.style.display = 'block';
+  } else {
+    alert('Order reference not found. Please check your order number or WhatsApp confirmation.');
+  }
+}
+
+// --- 8. UTILITIES & TOAST ---
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast-notification';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${msg}</span>`;
   toast.classList.add('show');
-
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// 13. Quick Search Tag Click Handler
-function quickSearch(term) {
-  const searchInput = document.getElementById('searchInput');
-  searchInput.value = term;
-  filterProducts();
-  const section = document.getElementById('collections');
-  if (section) section.scrollIntoView({ behavior: 'smooth' });
-  showToast(`Filtered by "${term}"`);
+function ensureDrawersInDOM() {
+  // Utility ensuring overlay exists in DOM
+  if (!document.getElementById('drawerOverlay')) {
+    const ov = document.createElement('div');
+    ov.id = 'drawerOverlay';
+    ov.className = 'drawer-overlay';
+    ov.onclick = closeAllDrawers;
+    document.body.appendChild(ov);
+  }
 }
-
-// 14. Customer Care Modals Handlers (Size Guide, Shipping Policy, Contact Us)
-function openSizeGuideModal() {
-  const modal = document.getElementById('sizeGuideModal');
-  if (modal) modal.classList.add('active');
-}
-function closeSizeGuideModal() {
-  const modal = document.getElementById('sizeGuideModal');
-  if (modal) modal.classList.remove('active');
-}
-
-function openShippingModal() {
-  const modal = document.getElementById('shippingModal');
-  if (modal) modal.classList.add('active');
-}
-function closeShippingModal() {
-  const modal = document.getElementById('shippingModal');
-  if (modal) modal.classList.remove('active');
-}
-
-function openContactModal() {
-  const modal = document.getElementById('contactModal');
-  if (modal) modal.classList.add('active');
-}
-function closeContactModal() {
-  const modal = document.getElementById('contactModal');
-  if (modal) modal.classList.remove('active');
-}
-
-// Initial Load
-document.addEventListener('DOMContentLoaded', () => {
-  updateBadges();
-  loadProducts();
-});
