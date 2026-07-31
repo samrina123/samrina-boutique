@@ -86,20 +86,20 @@
       </div>
     </div>
 
-    <!-- Category Bar (Tier 2 - Zero Text Wrapping) -->
+    <!-- Category Bar (Tier 2 - Single Page Smooth Navigation) -->
     <nav class="category-nav-bar">
       <div class="container">
         <ul class="nav-menu" id="navMenu">
-          <li><a href="index.html" class="nav-link active">Home</a></li>
-          <li><a href="shop.html" class="nav-link">Shop All</a></li>
-          <li><a href="shop.html?cat=saree" class="nav-link">Sarees</a></li>
-          <li><a href="shop.html?cat=casual" class="nav-link">Casual Wear</a></li>
-          <li><a href="shop.html?cat=shalwar" class="nav-link">Shalwar Kameez</a></li>
-          <li><a href="shop.html?cat=pret" class="nav-link">Pret Wear</a></li>
-          <li><a href="shop.html?cat=formal" class="nav-link">Formals</a></li>
-          <li><a href="shop.html?cat=bridal" class="nav-link">Bridal Couture</a></li>
-          <li><a href="about.html" class="nav-link">About Us</a></li>
-          <li><a href="contact.html" class="nav-link">Contact</a></li>
+          <li><a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="nav-link active">Home</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('all')" class="nav-link">Shop All</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('saree')" class="nav-link">Sarees</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('casual')" class="nav-link">Casual Wear</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('shalwar')" class="nav-link">Shalwar Kameez</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('pret')" class="nav-link">Pret Wear</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('formal')" class="nav-link">Formals</a></li>
+          <li><a href="javascript:void(0)" onclick="scrollToCategory('bridal')" class="nav-link">Bridal Couture</a></li>
+          <li><a href="#about" class="nav-link">About Us</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
         </ul>
       </div>
     </nav>
@@ -300,6 +300,85 @@
       </div>
     </div>
   </div>
+
+  <!-- About Brand Section -->
+  <section class="section" id="about" style="padding: 70px 0; background: var(--white); border-top: 1px solid var(--border-light);">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;">
+        <div>
+          <span class="hero-subtitle">OUR HERITAGE & CRAFTSMANSHIP</span>
+          <h2 style="font-family: var(--font-serif); font-size: 2.8rem; color: var(--dark-charcoal); margin-bottom: 20px;">The Legacy of Samrina Mughal Haute Couture</h2>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 20px;">
+            Founded with a passion for royal Pakistani ethnic fashion, Samrina Boutique brings together centuries-old zardozi embroidery, hand-woven silk, pure velvet, and contemporary bridal cuts.
+          </p>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 30px;">
+            Every ensemble is meticulously designed and custom-stitched by master artisans to ensure flawless fit, luxury finish, and timeless elegance for your special occasions.
+          </p>
+          <a href="#collections" onclick="scrollToCategory('all')" class="btn-primary">Explore Our Collections <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="arch-frame">
+          <img src="https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80" alt="Samrina Boutique Atelier" style="width: 100%; height: 480px; object-fit: cover;" onerror="handleImageError(this, 'formal')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact & Store Location Section -->
+  <section class="section" id="contact" style="padding: 70px 0; background: var(--ivory-bg); border-top: 1px solid var(--border-light);">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 40px;">
+        <span class="section-subtitle">GET IN TOUCH WITH US</span>
+        <h2 class="section-title">Contact & Store Location</h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <!-- Contact Form -->
+        <div style="background: var(--white); border: 1px solid var(--border-light); padding: 35px; border-radius: 20px; box-shadow: var(--shadow-sm);">
+          <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--dark-charcoal); margin-bottom: 20px;">Send Us an Inquiry</h3>
+          
+          <form onsubmit="alert('Thank you! Your inquiry has been sent to Samrina Boutique customer care.'); event.preventDefault(); this.reset();">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Your Name</label>
+                <input type="text" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="Full Name" required>
+              </div>
+              <div>
+                <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Phone / WhatsApp Number</label>
+                <input type="tel" class="search-input" style="width: 100%; border-radius: 8px; padding: 10px;" placeholder="0300 1234567" required>
+              </div>
+              <div>
+                <label style="font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 6px;">Message / Custom Inquiry</label>
+                <textarea class="search-input" style="width: 100%; border-radius: 8px; padding: 10px; height: 90px; resize: none;" placeholder="How can we help you with your order?" required></textarea>
+              </div>
+              <button type="submit" class="btn-primary" style="justify-content: center; margin-top: 10px;">Send Message <i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Store Location & Direct Helpline Details -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div style="background: var(--white); border: 1px solid var(--border-light); padding: 25px; border-radius: 16px;">
+            <i class="fa-solid fa-location-dot" style="font-size: 1.8rem; color: var(--primary-emerald); margin-bottom: 10px;"></i>
+            <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--dark-charcoal); margin-bottom: 6px;">Physical Flagship Store</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Neeli Bar City, Afaq Road Burewala, Pakistan</p>
+          </div>
+
+          <div style="background: var(--white); border: 1px solid var(--border-light); padding: 25px; border-radius: 16px;">
+            <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem; color: #25D366; margin-bottom: 10px;"></i>
+            <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--dark-charcoal); margin-bottom: 6px;">Direct WhatsApp Helpline</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">+92 303 8873030 (03038873030)</p>
+          </div>
+
+          <div style="background: var(--white); border: 1px solid var(--border-light); padding: 25px; border-radius: 16px;">
+            <i class="fa-solid fa-envelope" style="font-size: 1.8rem; color: #EA4335; margin-bottom: 10px;"></i>
+            <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--dark-charcoal); margin-bottom: 6px;">Official Email Support</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">samrinamughal456@gmail.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Features Section -->
   <section class="section features-section">
