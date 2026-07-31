@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=1000">
+  <link rel="stylesheet" href="style.css?v=1100">
 </head>
 <body>
 
@@ -378,10 +378,10 @@
           </div>
 
           <div style="display: flex; gap: 12px; margin-top: 10px;">
-            <button class="btn-primary" style="flex: 1; justify-content: center; background: #25D366; border-color: #25D366; color: #fff;" onclick="submitOrder('whatsapp')">
+            <button type="button" class="btn-primary" style="flex: 1; justify-content: center; background: #25D366; border-color: #25D366; color: #fff;" onclick="submitOrder('whatsapp')">
               <i class="fa-brands fa-whatsapp"></i> Order via WhatsApp
             </button>
-            <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="addToCart(document.getElementById('modalDressTitle').innerText, parseInt(document.getElementById('modalDressPrice').innerText.replace(/[^0-9]/g,'')), selectedSize)">
+            <button type="button" class="btn-primary" style="flex: 1; justify-content: center;" onclick="addToCart(document.getElementById('modalDressTitle').innerText, parseInt(document.getElementById('modalDressPrice').innerText.replace(/[^0-9]/g,'')), selectedSize)">
               <i class="fa-solid fa-bag-shopping"></i> Add to Bag
             </button>
           </div>
@@ -458,6 +458,6 @@
   </a>
 
   <!-- Custom Script -->
-  <script src="app.js?v=1000"></script>
+  <script src="app.js?v=1100"></script>
 </body>
 </html>
