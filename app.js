@@ -541,19 +541,25 @@ function submitOrder(method) {
   } catch (err) {}
 
   // Format WhatsApp Message Text
-  const text = `❖ NEW ORDER - SAMRINA BOUTIQUE ❖\n` +
-    `Order Ref: ${orderNum}\n` +
-    `Total Bill: PKR ${totalOrderPrice.toLocaleString()}\n\n` +
-    `❖ ORDERED ITEMS:\n${itemsFormattedText}\n\n` +
-    `❖ CUSTOMER DETAILS:\n` +
-    `• Name: ${name}\n` +
-    `• Phone: ${phone}\n` +
-    `• Gmail: ${email || 'N/A'}\n` +
-    `• City: ${city}\n` +
-    `• Postal Code: ${postal || 'N/A'}\n` +
-    `• Country: ${country} 🇵🇰\n` +
-    `• Address: ${address}\n\n` +
-    `Thank you! Please confirm my order placement.`;
+  const waText = 
+`❖ NEW ORDER - SAMRINA BOUTIQUE ❖
+---------------------------------
+Order Ref: ${orderNum}
+Total Bill: PKR ${totalOrderPrice.toLocaleString()}
+
+❖ ORDERED DRESS(ES):
+${itemsFormattedText}
+
+❖ CUSTOMER DETAILS:
+• Name: ${name}
+• Phone / WhatsApp: ${phone}
+• Gmail Address: ${email || 'N/A'}
+• City Name: ${city}
+• Postal Code: ${postal || 'N/A'}
+• Country: ${country} 🇵🇰
+• Delivery Address: ${address}
+---------------------------------
+Thank you! Please confirm my order placement.`;
 
   // Clear Cart after successful order placement
   cartItems = [];
@@ -561,13 +567,15 @@ function submitOrder(method) {
   updateBadges();
   renderCartDrawer();
 
-  const waUrl = `https://api.whatsapp.com/send?phone=923038873030&text=${encodeURIComponent(text)}`;
+  const waUrl = `https://wa.me/923038873030?text=${encodeURIComponent(waText)}`;
   closeOrderModal();
   showToast('Order Placed Successfully! Opening WhatsApp... 🚀');
   
-  setTimeout(() => {
+  // Instant redirect for WhatsApp App & Web
+  const win = window.open(waUrl, '_blank');
+  if (!win || win.closed || typeof win.closed === 'undefined') {
     window.location.href = waUrl;
-  }, 500);
+  }
 }
 
 // --- 6b. CUSTOMER INQUIRY SUBMISSION HANDLER ---
