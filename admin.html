@@ -658,10 +658,34 @@
 
         // Combine API orders with LocalStorage orders
         const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
-        if (ordersList.length === 0 && localOrders.length > 0) {
+        try {
+          const ordersRes = await fetch(`${API_BASE}/orders`);
+          const ordersData = await ordersRes.json();
+          if (ordersData.status === 'success') {
+            ordersList = [...ordersData.data, ...localOrders];
+          } else {
+            ordersList = localOrders;
+          }
+        } catch (err) {
           ordersList = localOrders;
-          totalRev = localOrders.reduce((sum, o) => sum + (o.total_price_pkr || 0), 0);
         }
+
+        totalRev = ordersList.reduce((sum, o) => sum + (o.total_price_pkr || 0), 0);
+
+        // Fetch & Combine Products (LocalStorage + Fallback)
+        let localProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
+        let productsList = [...localProducts];
+        try {
+          const prodRes = await fetch(`${API_BASE}/products`);
+          const prodData = await prodRes.json();
+          if (prodData.status === 'success' && prodData.data.length > 0) {
+            productsList = [...prodData.data, ...localProducts];
+          }
+        } catch (err) {
+          console.warn('API inventory fetch offline, rendering LocalStorage & Catalogue items.');
+        }
+
+        totalProds = productsList.length > 0 ? productsList.length : 36;
 
         // Update Stat Cards
         document.getElementById('statProducts').textContent = totalProds;
@@ -676,14 +700,14 @@
           ordersList.forEach((ord, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td style="font-weight: 700; color: var(--gold-light);">${ord.order_number || ('SB-ORD-' + (index + 1))}</td>
+              <td style="font-weight: 700; color: var(--gold-primary);">${ord.order_number || ('SB-ORD-' + (index + 1))}</td>
               <td>${ord.customer_name || 'Customer'}</td>
               <td>${ord.customer_phone || '-'}</td>
               <td>${ord.customer_address || '-'}</td>
-              <td>${ord.product_title} (${ord.size}) ${ord.custom_measurements ? '<br><small style="color:var(--text-muted);">' + ord.custom_measurements + '</small>' : ''}</td>
-              <td style="font-weight: 600;">PKR ${ord.total_price_pkr.toLocaleString()}</td>
+              <td>${ord.product_title || 'Haute Couture Dress'} (${ord.size || 'M'}) ${ord.custom_measurements ? '<br><small style="color:var(--text-muted);">' + ord.custom_measurements + '</small>' : ''}</td>
+              <td style="font-weight: 700; color: var(--emerald-accent);">PKR ${(ord.total_price_pkr || 0).toLocaleString()}</td>
               <td>
-                <select class="status-select" onchange="updateOrderStatus(${ord.id || index}, this.value)">
+                <select class="status-select" onchange="updateOrderStatus('${ord.id || index}', this.value)">
                   <option value="Pending" ${ord.order_status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
                   <option value="Confirmed" ${ord.order_status === 'Confirmed' ? 'selected' : ''}>✅ Confirmed</option>
                   <option value="In Tailoring" ${ord.order_status === 'In Tailoring' ? 'selected' : ''}>🪡 In Tailoring</option>
@@ -695,33 +719,28 @@
             tbody.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No orders placed yet. Place an order on the storefront!</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No orders placed yet. Place an order on the storefront!</td></tr>';
         }
 
-        // Fetch Active Products if API online
-        try {
-          const prodRes = await fetch(`${API_BASE}/products`);
-          const prodData = await prodRes.json();
-          const pTbody = document.getElementById('productsTableBody');
+        // Render Products Table
+        const pTbody = document.getElementById('productsTableBody');
+        if (pTbody) {
           pTbody.innerHTML = '';
-
-          if (prodData.status === 'success' && prodData.data.length > 0) {
-            prodData.data.forEach(p => {
+          if (productsList.length > 0) {
+            productsList.forEach(p => {
               const tr = document.createElement('tr');
               tr.innerHTML = `
-                <td style="font-weight: 700; color: var(--gold-light);">#${p.id}</td>
+                <td style="font-weight: 700; color: var(--emerald-accent);">#${p.id}</td>
                 <td><img src="${p.image_url}" style="width: 36px; height: 45px; object-fit: cover; border-radius: 6px;"></td>
                 <td style="font-weight: 600;">${p.title}</td>
-                <td><span style="text-transform: uppercase; font-size: 0.75rem; background: rgba(212,175,55,0.15); color: var(--gold-primary); padding: 3px 8px; border-radius: 6px;">${p.category}</span></td>
+                <td><span style="text-transform: uppercase; font-size: 0.75rem; background: var(--gold-bg-light); color: var(--emerald-accent); padding: 3px 8px; border-radius: 6px; font-weight: 700;">${p.category}</span></td>
                 <td>${p.fabric}</td>
-                <td style="font-weight: 700; color: var(--gold-light);">PKR ${p.price_pkr.toLocaleString()}</td>
-                <td><button class="delete-btn" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i> Delete</button></td>
+                <td style="font-weight: 700; color: var(--emerald-accent);">PKR ${p.price_pkr.toLocaleString()}</td>
+                <td><button class="delete-btn" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i> Delete</button></td>
               `;
               pTbody.appendChild(tr);
             });
           }
-        } catch (err) {
-          console.warn('API inventory fetch offline.');
         }
 
       } catch (err) {
@@ -731,76 +750,70 @@
 
     async function deleteProduct(productId) {
       if (!confirm('Are you sure you want to delete this dress?')) return;
+      
+      let localProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
+      localProducts = localProducts.filter(p => String(p.id) !== String(productId));
+      localStorage.setItem('samrina_products', JSON.stringify(localProducts));
+
       try {
-        const res = await fetch(`${API_BASE}/products/${productId}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.status === 'success') {
-          fetchAdminData();
-          return;
-        }
+        await fetch(`${API_BASE}/products/${productId}`, { method: 'DELETE' });
       } catch (err) {
-        console.warn('API server offline, updating view locally.');
+        console.warn('API server offline, deleted locally.');
       }
-      showAdminToast('Product action processed');
+      showAdminToast('Dress deleted from inventory database! 🗑️');
       fetchAdminData();
     }
 
     async function updateOrderStatus(orderId, newStatus) {
+      let localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+      let found = localOrders.find(o => String(o.id) === String(orderId) || String(o.order_number) === String(orderId));
+      if (found) {
+        found.order_status = newStatus;
+        localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
+      }
+
       try {
-        const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+        await fetch(`${API_BASE}/orders/${orderId}/status`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
         });
-        const data = await res.json();
-        if (data.status === 'success') {
-          showAdminToast(`Status updated to ${newStatus}! ✅`);
-          return;
-        }
       } catch (err) {
-        console.warn('API server offline (GitHub Pages mode). Updating status in LocalStorage.');
+        console.warn('API server offline, status updated in LocalStorage.');
       }
-
-      let localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
-      if (typeof orderId === 'number' && localOrders[orderId]) {
-        localOrders[orderId].order_status = newStatus;
-      } else {
-        const found = localOrders.find(o => o.id === orderId || o.order_number === orderId);
-        if (found) found.order_status = newStatus;
-      }
-      localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
       showAdminToast(`Order status updated to ${newStatus}! ✅`);
+      fetchAdminData();
     }
 
     async function handleAddProduct(e) {
       e.preventDefault();
       const newProduct = {
+        id: Date.now(),
         title: document.getElementById('addTitle').value,
         category: document.getElementById('addCategory').value,
         fabric: document.getElementById('addFabric').value,
         price_pkr: parseFloat(document.getElementById('addPrice').value),
-        image_url: document.getElementById('addImage').value
+        image_url: document.getElementById('addImage').value || 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80',
+        stock_status: 'NEW DRESS'
       };
 
+      let localProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
+      localProducts.unshift(newProduct);
+      localStorage.setItem('samrina_products', JSON.stringify(localProducts));
+
       try {
-        const res = await fetch(`${API_BASE}/products`, {
+        await fetch(`${API_BASE}/products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newProduct)
         });
-        const data = await res.json();
-        if (data.status === 'success') {
-          showAdminToast('Dress successfully added! ✨');
-          document.getElementById('addProductForm').reset();
-          fetchAdminData();
-          return;
-        }
       } catch (err) {
-        console.warn('API server offline, saving product locally.');
+        console.warn('API server offline, product saved to LocalStorage.');
       }
 
-      showAdminToast('Dress added to catalogue view! ✨');
+      showAdminToast('New dress added to catalogue database! ✨');
       document.getElementById('addProductForm').reset();
+      fetchAdminData();
     }
 
     function showAdminToast(msg) {
