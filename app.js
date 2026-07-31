@@ -394,12 +394,28 @@ function removeFromCart(index) {
 
 function proceedCartCheckout() {
   if (cartItems.length === 0) {
-    showToast('Your bag is empty!');
+    showToast('Your bag is empty! Add dresses to place an order.');
     return;
   }
-  const firstItem = cartItems[0];
+
+  let totalBagPrice = 0;
+  cartItems.forEach(item => totalBagPrice += item.price_pkr);
+
   closeCartDrawer();
-  openOrderModal(firstItem.title, firstItem.price_pkr);
+
+  // Populate Order Modal with Bag Items Summary
+  const modal = document.getElementById('orderModal');
+  const titleEl = document.getElementById('modalDressTitle');
+  const priceEl = document.getElementById('modalDressPrice');
+  const imgEl = document.getElementById('modalDressImg');
+
+  if (titleEl) titleEl.innerText = cartItems.length === 1 ? cartItems[0].title : `Shopping Bag Order (${cartItems.length} Items)`;
+  if (priceEl) priceEl.innerText = `PKR ${totalBagPrice.toLocaleString()}`;
+  if (imgEl && cartItems[0]) {
+    imgEl.src = cartItems[0].image_url;
+  }
+
+  if (modal) modal.classList.add('active');
 }
 
 // --- 6. IN-PAGE SIZING & ORDER MODAL HANDLERS ---
@@ -455,28 +471,42 @@ function submitOrder(method) {
   const country = 'Pakistan';
   const address = document.getElementById('custAddress')?.value.trim();
 
-  const dress = document.getElementById('modalDressTitle').innerText;
-  const price = document.getElementById('modalDressPrice').innerText;
-
   if (!name || !phone || !city || !address) {
-    alert('Please fill in your Name, Phone Number, City Name, and Delivery Address to place your order.');
+    alert('Please fill in your Full Name, Phone Number, City Name, and Delivery Address to place your order.');
     return;
   }
 
-  let measurementsInfo = '';
-  let customMeasurementsStr = '';
-  if (selectedSize === 'Bespoke Custom Fit') {
-    const chest = document.getElementById('mChest')?.value || 'Std';
-    const waist = document.getElementById('mWaist')?.value || 'Std';
-    const hips = document.getElementById('mHips')?.value || 'Std';
-    const length = document.getElementById('mLength')?.value || 'Std';
-    customMeasurementsStr = `Chest: ${chest}" | Waist: ${waist}" | Hips: ${hips}" | Length: ${length}"`;
-    measurementsInfo = `\n❖ CUSTOM MEASUREMENTS:\n- ${customMeasurementsStr}`;
+  let orderItems = [];
+  let totalOrderPrice = 0;
+  let itemsFormattedText = '';
+
+  if (cartItems.length > 0) {
+    orderItems = [...cartItems];
+    itemsFormattedText = cartItems.map((item, idx) => {
+      totalOrderPrice += item.price_pkr;
+      return `${idx + 1}. ${item.title} (${item.selectedSize || 'M'}) - PKR ${item.price_pkr.toLocaleString()}`;
+    }).join('\n');
+  } else {
+    const dressTitle = document.getElementById('modalDressTitle')?.innerText || 'Haute Couture Dress';
+    const dressPriceText = document.getElementById('modalDressPrice')?.innerText || '0';
+    totalOrderPrice = parseInt(dressPriceText.replace(/[^0-9]/g, '')) || 0;
+    
+    let measurementsInfo = '';
+    if (selectedSize === 'Bespoke Custom Fit') {
+      const chest = document.getElementById('mChest')?.value || 'Std';
+      const waist = document.getElementById('mWaist')?.value || 'Std';
+      const hips = document.getElementById('mHips')?.value || 'Std';
+      const length = document.getElementById('mLength')?.value || 'Std';
+      measurementsInfo = ` [Custom Fit: Chest:${chest}", Waist:${waist}", Hips:${hips}", Length:${length}"]`;
+    }
+    
+    itemsFormattedText = `1. ${dressTitle} (${selectedSize})${measurementsInfo} - PKR ${totalOrderPrice.toLocaleString()}`;
+    orderItems = [{ title: dressTitle, price_pkr: totalOrderPrice, selectedSize }];
   }
 
   const orderNum = 'SB-' + Math.floor(100000 + Math.random() * 900000);
 
-  // Sync with LocalStorage Admin Database & API
+  const mainTitle = orderItems.length === 1 ? orderItems[0].title : `Multi-Item Order (${orderItems.length} Dresses)`;
   const newOrderObj = {
     order_number: orderNum,
     customer_name: name,
@@ -486,21 +516,22 @@ function submitOrder(method) {
     postal_code: postal || 'N/A',
     country: country,
     customer_address: address,
-    dress_title: dress,
-    product_title: dress,
-    size: selectedSize,
-    custom_measurements: customMeasurementsStr,
-    total_price_pkr: parseInt(price.replace(/[^0-9]/g, '')) || 0,
+    dress_title: mainTitle,
+    product_title: mainTitle,
+    size: orderItems[0]?.selectedSize || selectedSize || 'M',
+    custom_measurements: itemsFormattedText,
+    total_price_pkr: totalOrderPrice,
     status: 'Pending',
     order_status: 'Pending',
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   };
 
+  // Save to LocalStorage
   const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
   localOrders.unshift(newOrderObj);
   localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
 
-  // Try POST to API backend
+  // Try API POST
   try {
     fetch(`${API_URL}/orders`, {
       method: 'POST',
@@ -509,30 +540,34 @@ function submitOrder(method) {
     });
   } catch (err) {}
 
-  if (method === 'whatsapp') {
-    const text = `❖ NEW ORDER - SAMRINA BOUTIQUE ❖\n` +
-      `Order Ref: ${orderNum}\n` +
-      `Item: ${dress}\n` +
-      `Price: ${price}\n` +
-      `Size: ${selectedSize}${measurementsInfo}\n\n` +
-      `❖ CUSTOMER DETAILS:\n` +
-      `• Name: ${name}\n` +
-      `• Phone: ${phone}\n` +
-      `• Gmail: ${email || 'N/A'}\n` +
-      `• City: ${city}\n` +
-      `• Postal Code: ${postal || 'N/A'}\n` +
-      `• Country: ${country} 🇵🇰\n` +
-      `• Address: ${address}\n\n` +
-      `Thank you! Please confirm my order placement.`;
+  // Format WhatsApp Message Text
+  const text = `❖ NEW ORDER - SAMRINA BOUTIQUE ❖\n` +
+    `Order Ref: ${orderNum}\n` +
+    `Total Bill: PKR ${totalOrderPrice.toLocaleString()}\n\n` +
+    `❖ ORDERED ITEMS:\n${itemsFormattedText}\n\n` +
+    `❖ CUSTOMER DETAILS:\n` +
+    `• Name: ${name}\n` +
+    `• Phone: ${phone}\n` +
+    `• Gmail: ${email || 'N/A'}\n` +
+    `• City: ${city}\n` +
+    `• Postal Code: ${postal || 'N/A'}\n` +
+    `• Country: ${country} 🇵🇰\n` +
+    `• Address: ${address}\n\n` +
+    `Thank you! Please confirm my order placement.`;
 
-    const waUrl = `https://api.whatsapp.com/send?phone=923038873030&text=${encodeURIComponent(text)}`;
-    closeOrderModal();
-    showToast('Redirecting to WhatsApp...');
+  // Clear Cart after successful order placement
+  cartItems = [];
+  localStorage.setItem('sb_cart_items', JSON.stringify([]));
+  updateBadges();
+  renderCartDrawer();
+
+  const waUrl = `https://api.whatsapp.com/send?phone=923038873030&text=${encodeURIComponent(text)}`;
+  closeOrderModal();
+  showToast('Order Placed Successfully! Opening WhatsApp... 🚀');
+  
+  setTimeout(() => {
     window.location.href = waUrl;
-  } else {
-    alert(`Order ${orderNum} Placed Successfully! Customer support will reach out to ${phone}.`);
-    closeOrderModal();
-  }
+  }, 500);
 }
 
 // --- 6b. CUSTOMER INQUIRY SUBMISSION HANDLER ---
