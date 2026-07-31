@@ -512,7 +512,17 @@ function submitInquiry(event) {
   if (event && event.target) event.target.reset();
 }
 
-// --- 7. TRACK ORDER LOGIC ---
+// --- 7. TRACK ORDER LOGIC & LIVE SYNC ---
+window.addEventListener('storage', (e) => {
+  if (e.key === 'samrina_orders') {
+    const trackInput = document.getElementById('trackOrderInput');
+    const trackBox = document.getElementById('trackResultBox');
+    if (trackInput && trackInput.value.trim() && trackBox && trackBox.style.display !== 'none') {
+      searchTrackOrder();
+    }
+  }
+});
+
 function openTrackModal() {
   const modal = document.getElementById('trackModal');
   if (modal) modal.classList.add('active');
