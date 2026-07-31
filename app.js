@@ -63,15 +63,29 @@ const FULL_PRODUCT_CATALOGUE = [
   { id: 36, title: "Royale Gold Handcrafted Bridal Lehenga", category: "bridal", fabric: "Raw Silk Gold Zardozi Barat Set", price_pkr: 150000, image_url: "images/gold_bridal.jpg", rating: 4.9, stock_status: "POPULAR BRIDAL" }
 ];
 
+// Master Dataset Merger (Full Catalogue + LocalStorage Custom Admin Products)
+function getMergedProducts() {
+  const localProds = JSON.parse(localStorage.getItem('samrina_products') || '[]');
+  return [...localProds, ...FULL_PRODUCT_CATALOGUE];
+}
+
+function getProductById(id) {
+  const all = getMergedProducts();
+  const searchId = String(id).trim();
+  const found = all.find(p => String(p.id).trim() === searchId);
+  return found || all[0];
+}
+
 // 1. Mobile Menu Drawer Toggle
 function toggleMobileMenu() {
   const navMenu = document.getElementById('navMenu');
-  navMenu.classList.toggle('active');
+  if (navMenu) navMenu.classList.toggle('active');
 }
 
 // 2. Fetch Live Products or Filter Client Dataset
 async function loadProducts(category = 'all', search = '') {
   const grid = document.getElementById('productsGrid');
+  if (!grid) return;
 
   try {
     let url = `${API_URL}/products?category=${category}`;
@@ -80,18 +94,17 @@ async function loadProducts(category = 'all', search = '') {
     const res = await fetch(url);
     const data = await res.json();
 
-    if (data.status === 'success') {
+    if (data.status === 'success' && data.data.length > 0) {
       allProducts = data.data;
       renderProductsGrid(allProducts);
-      renderSimilarProducts(allProducts, category, search);
       return;
     }
   } catch (err) {
-    console.warn('Backend API offline or reloading, using robust full catalogue fallback.');
+    console.warn('Backend API offline or reloading, using merged catalogue fallback.');
   }
 
   // Robust Client-side Filtering if API server is restarting
-  let filtered = FULL_PRODUCT_CATALOGUE;
+  let filtered = getMergedProducts();
   if (category && category !== 'all') {
     filtered = filtered.filter(p => p.category === category);
   }
@@ -106,7 +119,6 @@ async function loadProducts(category = 'all', search = '') {
   }
   allProducts = filtered;
   renderProductsGrid(allProducts);
-  renderSimilarProducts(allProducts, category, search);
 }
 
 // 3. Render Product Cards into DOM
