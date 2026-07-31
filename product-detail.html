@@ -175,15 +175,14 @@
 
   <script src="app.js?v=9"></script>
   <script>
-    // Product Detail Page Dynamic URL Handler
     let currentDetailProduct = null;
     let selectedDetailSizeVal = 'S';
 
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      const prodId = parseInt(params.get('id')) || 1;
+      const prodId = params.get('id') || '1';
       
-      const found = productsData.find(p => p.id === prodId) || productsData[0];
+      const found = getProductById(prodId);
       if (found) {
         currentDetailProduct = found;
         document.getElementById('breadcrumbTitle').textContent = found.title;
@@ -206,9 +205,29 @@
       }
     }
 
+    function saveOrderToDatabase(orderData) {
+      let orders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+      orders.unshift(orderData);
+      localStorage.setItem('samrina_orders', JSON.stringify(orders));
+    }
+
     function orderDetailViaWhatsApp() {
       if (!currentDetailProduct) return;
-      let msg = `Hello Samrina Boutique! I want to order:\nDress: ${currentDetailProduct.title}\nPrice: PKR ${currentDetailProduct.price_pkr}\nSize: ${selectedDetailSizeVal}`;
+      
+      const orderObj = {
+        id: Date.now(),
+        order_number: 'SB-' + Math.floor(1000 + Math.random() * 9000),
+        customer_name: 'Customer (WhatsApp)',
+        customer_phone: '+92 303 8873030',
+        customer_address: 'Direct WhatsApp Dispatch',
+        product_title: currentDetailProduct.title,
+        size: selectedDetailSizeVal,
+        total_price_pkr: currentDetailProduct.price_pkr,
+        order_status: 'Pending'
+      };
+      saveOrderToDatabase(orderObj);
+
+      let msg = `Hello Samrina Boutique! I want to order:\nDress: ${currentDetailProduct.title}\nPrice: PKR ${currentDetailProduct.price_pkr.toLocaleString()}\nSize: ${selectedDetailSizeVal}`;
       if (selectedDetailSizeVal === 'Custom') {
         msg += `\nCustom Measurements: Bust: ${document.getElementById('custBust').value}, Waist: ${document.getElementById('custWaist').value}, Length: ${document.getElementById('custLength').value}`;
       }
@@ -217,8 +236,22 @@
 
     function orderDetailViaGmail() {
       if (!currentDetailProduct) return;
+
+      const orderObj = {
+        id: Date.now(),
+        order_number: 'SB-' + Math.floor(1000 + Math.random() * 9000),
+        customer_name: 'Customer (Gmail)',
+        customer_phone: 'samrinamughal456@gmail.com',
+        customer_address: 'Direct Gmail Dispatch',
+        product_title: currentDetailProduct.title,
+        size: selectedDetailSizeVal,
+        total_price_pkr: currentDetailProduct.price_pkr,
+        order_status: 'Pending'
+      };
+      saveOrderToDatabase(orderObj);
+
       let subject = `New Order: ${currentDetailProduct.title}`;
-      let body = `Hello Samrina Boutique,\n\nI wish to confirm an order for:\nDress: ${currentDetailProduct.title}\nPrice: PKR ${currentDetailProduct.price_pkr}\nSize: ${selectedDetailSizeVal}\n\nPlease contact me to confirm delivery address.`;
+      let body = `Hello Samrina Boutique,\n\nI wish to confirm an order for:\nDress: ${currentDetailProduct.title}\nPrice: PKR ${currentDetailProduct.price_pkr.toLocaleString()}\nSize: ${selectedDetailSizeVal}\n\nPlease contact me to confirm delivery address.`;
       window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=samrinamughal456@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
     }
 
