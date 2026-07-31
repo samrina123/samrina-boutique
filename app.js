@@ -322,10 +322,12 @@ function closeAllDrawers() {
 
 function addToCart(title, pricePkr, size = 'M') {
   const prod = getMergedProducts().find(p => p.title === title) || { title, price_pkr: pricePkr, image_url: 'images/hero_banner.jpg' };
-  cartItems.push({ ...prod, selectedSize: size });
+  cartItems.push({ ...prod, selectedSize: size, cartId: Date.now() + Math.random() });
   localStorage.setItem('sb_cart_items', JSON.stringify(cartItems));
   updateBadges();
-  showToast('Item added to Shopping Bag 🛍️');
+  showToast('Item added to Shopping Bag! 🛍️');
+  closeOrderModal();
+  openCartDrawer();
 }
 
 function renderCartDrawer() {
@@ -336,7 +338,7 @@ function renderCartDrawer() {
   if (!list) return;
 
   if (cartItems.length === 0) {
-    list.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">Your shopping bag is empty.</div>';
+    list.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fa-solid fa-bag-shopping" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.4;"></i><br>Your shopping bag is empty.</div>';
     if (subtotalText) subtotalText.innerText = 'PKR 0';
     return;
   }
@@ -345,14 +347,14 @@ function renderCartDrawer() {
   list.innerHTML = cartItems.map((item, idx) => {
     total += item.price_pkr;
     return `
-      <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
-        <img src="${item.image_url}" alt="${item.title}" style="width: 65px; height: 80px; object-fit: cover; border-radius: 8px;">
-        <div style="flex-grow: 1;">
-          <h4 style="font-size: 0.9rem; font-family: var(--font-serif); color: var(--dark-charcoal); margin-bottom: 4px;">${item.title}</h4>
-          <span style="font-size: 0.75rem; background: var(--ivory-bg); padding: 2px 8px; border-radius: 4px;">Size: ${item.selectedSize || 'M'}</span>
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
+        <img src="${item.image_url}" alt="${item.title}" style="width: 60px; height: 75px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" onerror="handleImageError(this, '${item.category || 'saree'}')">
+        <div style="flex-grow: 1; min-width: 0;">
+          <h4 style="font-size: 0.85rem; font-family: var(--font-serif); color: var(--dark-charcoal); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</h4>
+          <span style="font-size: 0.72rem; background: var(--ivory-bg); padding: 2px 8px; border-radius: 4px; font-weight: 600;">Size: ${item.selectedSize || 'M'}</span>
           <div style="color: var(--primary-emerald); font-weight: 700; font-size: 0.85rem; margin-top: 4px;">PKR ${item.price_pkr.toLocaleString()}</div>
         </div>
-        <button onclick="removeFromCart(${idx})" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.1rem;"><i class="fa-solid fa-trash"></i></button>
+        <button onclick="removeFromCart(${idx})" style="background: rgba(231, 76, 60, 0.1); border: none; color: #e74c3c; cursor: pointer; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem;" title="Remove"><i class="fa-solid fa-trash"></i></button>
       </div>
     `;
   }).join('');
