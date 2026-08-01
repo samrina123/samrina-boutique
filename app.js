@@ -3,8 +3,34 @@
    Single-Page Storefront, Sizing & Custom Measurements, WhatsApp Dispatch,
    Wishlist, Cart & Admin Portal Database Synchronization
    ========================================================================== */
+// --- FIREBASE CONFIGURATION ---
+const firebaseConfig = {
+  apiKey: "AIzaSyCX5im7MRpEWunZiJX239zsfew26u-uY2g",
+  authDomain: "samrina-boutique.firebaseapp.com",
+  projectId: "samrina-boutique",
+  storageBucket: "samrina-boutique.firebasestorage.app",
+  messagingSenderId: "235193343730",
+  appId: "1:235193343730:web:c35becf199587bb06afa6b",
+  measurementId: "G-J52K1J6XZV"
+};
 
-const API_URL = 'http://localhost:5000/api';
+// Initialize Firebase (Compat mode)
+let db = null;
+try {
+  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  if (typeof firebase !== 'undefined') {
+    db = firebase.firestore();
+  }
+} catch (e) {
+  console.error("Firebase initialization error:", e);
+}
+// ------------------------------
+
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000/api'
+  : '';
 const PKR_TO_USD_RATE = 0.0036;
 
 let currentCurrency = 'PKR';
@@ -90,10 +116,12 @@ const FULL_PRODUCT_CATALOGUE = [
 ];
 
 // Helper: Merges Catalogue + LocalStorage Custom Admin Products
-function getMergedProducts() {
+function getMergedProducts(extraProducts = []) {
   const customProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
-  const merged = [...FULL_PRODUCT_CATALOGUE];
-  customProducts.forEach(cp => {
+  let merged = [...FULL_PRODUCT_CATALOGUE];
+  
+  const allExtras = [...customProducts, ...extraProducts];
+  allExtras.forEach(cp => {
     if (!merged.some(p => p.id === cp.id)) {
       merged.unshift(cp);
     }
@@ -102,12 +130,33 @@ function getMergedProducts() {
 }
 
 // --- 2. INITIALIZATION & NAVIGATION ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   allProducts = getMergedProducts();
   renderProductsGrid(allProducts);
   updateBadges();
   ensureDrawersInDOM();
+
+  // Async fetch from Firebase Firestore for live products
+  if (typeof db !== 'undefined' && db !== null) {
+    try {
+      const snapshot = await db.collection('products').get();
+      if (!snapshot.empty) {
+        const firestoreProducts = [];
+        snapshot.forEach(doc => firestoreProducts.push(doc.data()));
+        allProducts = getMergedProducts(firestoreProducts);
+        renderProductsGrid(allProducts); // Re-render with new products
+      }
+    } catch (err) {
+      console.error("Firestore product fetch error:", err);
+    }
+  }
 });
+
+function ensureDrawersInDOM() {
+  updateBadges();
+  renderWishlistDrawer();
+  renderCartDrawer();
+}
 
 function toggleMobileMenu() {
   const navBar = document.querySelector('.category-nav-bar');
@@ -462,7 +511,7 @@ function closeOrderModal() {
   if (modal) modal.classList.remove('active');
 }
 
-function submitOrder(method) {
+async function submitOrder(method) {
   const name = document.getElementById('custName')?.value.trim();
   const phone = document.getElementById('custPhone')?.value.trim();
   const email = document.getElementById('custEmail')?.value.trim();
@@ -475,6 +524,10 @@ function submitOrder(method) {
     alert('Please fill in your Full Name, Phone Number, City Name, and Delivery Address to place your order.');
     return;
   }
+
+  // Visual feedback
+  const orderBtn = document.querySelector('.submit-btn');
+  if (orderBtn) orderBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 
   let orderItems = [];
   let totalOrderPrice = 0;
@@ -523,7 +576,8 @@ function submitOrder(method) {
     total_price_pkr: totalOrderPrice,
     status: 'Pending',
     order_status: 'Pending',
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: new Date().getTime()
   };
 
   // Save to LocalStorage immediately
@@ -531,14 +585,25 @@ function submitOrder(method) {
   localOrders.unshift(newOrderObj);
   localStorage.setItem('samrina_orders', JSON.stringify(localOrders));
 
-  // Background non-blocking API POST
-  try {
-    fetch(`${API_URL}/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newOrderObj)
-    }).catch(() => {});
-  } catch (err) {}
+  // Save to Firebase Firestore Database
+  if (typeof db !== 'undefined' && db !== null) {
+    try {
+      await db.collection('orders').doc(orderNum).set(newOrderObj);
+    } catch (error) {
+      console.error("Error saving order to database:", error);
+    }
+  }
+
+  // Background non-blocking API POST (fallback)
+  if (API_URL) {
+    try {
+      fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrderObj)
+      }).catch(() => {});
+    } catch (err) {}
+  }
 
   // Format WhatsApp Message Text
   const waText = 
@@ -576,7 +641,7 @@ Thank you! Please confirm my order placement.`;
 }
 
 // --- 6b. CUSTOMER INQUIRY SUBMISSION HANDLER ---
-function submitInquiry(event) {
+async function submitInquiry(event) {
   if (event) event.preventDefault();
   const name = document.getElementById('inquiryName')?.value.trim();
   const phone = document.getElementById('inquiryPhone')?.value.trim();
@@ -594,20 +659,32 @@ function submitInquiry(event) {
     phone: phone,
     email: email || 'N/A',
     message: message,
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: new Date().getTime()
   };
 
   const localInquiries = JSON.parse(localStorage.getItem('samrina_inquiries') || '[]');
   localInquiries.unshift(inqObj);
   localStorage.setItem('samrina_inquiries', JSON.stringify(localInquiries));
 
-  try {
-    fetch(`${API_URL}/inquiries`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(inqObj)
-    });
-  } catch (err) {}
+  // Save to Firebase Firestore Database
+  if (typeof db !== 'undefined' && db !== null) {
+    try {
+      await db.collection('inquiries').doc(inqObj.id).set(inqObj);
+    } catch (error) {
+      console.error("Error saving inquiry to database:", error);
+    }
+  }
+
+  if (API_URL) {
+    try {
+      fetch(`${API_URL}/inquiries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inqObj)
+      }).catch(() => {});
+    } catch (err) {}
+  }
 
   showToast('Inquiry sent successfully to Samrina Boutique! 📩');
   if (event && event.target) event.target.reset();
@@ -639,19 +716,48 @@ async function searchTrackOrder() {
 
   let match = null;
 
-  // 1. Try fetching live order status from Flask API server
-  try {
-    const res = await fetch(`${API_URL}/orders`);
-    const data = await res.json();
-    if (data.status === 'success') {
-      match = data.data.find(o => 
-        (o.order_number && o.order_number.toLowerCase() === input.toLowerCase()) ||
-        String(o.id) === input
-      );
+  // 1. Try fetching live order status from Firebase Firestore
+  if (typeof db !== 'undefined' && db !== null) {
+    try {
+      // Input can be uppercase or lowercase, let's normalize to uppercase as our IDs are like SB-123456
+      let queryId = input.toUpperCase();
+      if (!queryId.startsWith('SB-')) {
+        queryId = 'SB-' + queryId; // Basic normalization if user forgot SB-
+      }
+      
+      const doc = await db.collection('orders').doc(queryId).get();
+      if (doc.exists) {
+        match = doc.data();
+      } else {
+        // Fallback: search by query if exact ID didn't match (less efficient but safer)
+        const snapshot = await db.collection('orders').get();
+        snapshot.forEach(d => {
+          const data = d.data();
+          if ((data.order_number && data.order_number.toLowerCase() === input.toLowerCase()) || String(data.id) === input) {
+            match = data;
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Firestore tracking error:", err);
     }
-  } catch (err) {}
+  }
 
-  // 2. Fallback to LocalStorage orders
+  // 2. Try fetching from Flask API server (fallback)
+  if (!match && API_URL) {
+    try {
+      const res = await fetch(`${API_URL}/orders`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        match = data.data.find(o => 
+          (o.order_number && o.order_number.toLowerCase() === input.toLowerCase()) ||
+          String(o.id) === input
+        );
+      }
+    } catch (err) {}
+  }
+
+  // 3. Fallback to LocalStorage orders
   if (!match) {
     const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
     match = localOrders.find(o => 

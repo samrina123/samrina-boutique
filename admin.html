@@ -620,7 +620,35 @@
     </main>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <script>
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCX5im7MRpEWunZiJX239zsfew26u-uY2g",
+      authDomain: "samrina-boutique.firebaseapp.com",
+      projectId: "samrina-boutique",
+      storageBucket: "samrina-boutique.firebasestorage.app",
+      messagingSenderId: "235193343730",
+      appId: "1:235193343730:web:c35becf199587bb06afa6b",
+      measurementId: "G-J52K1J6XZV"
+    };
+
+    let db = null;
+    try {
+      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      if (typeof firebase !== 'undefined') {
+        db = firebase.firestore();
+      }
+    } catch (e) {
+      console.error("Firebase init error in admin:", e);
+    }
+    // ------------------------------
+    
     const API_BASE = 'http://localhost:5000/api';
 
     // 1. Mobile Sidebar Toggle Drawer
@@ -685,66 +713,65 @@
         let totalRev = 0;
         let totalProds = 36;
 
-        // Try API fetch if online
-        try {
-          const statsRes = await fetch(`${API_BASE}/stats`);
-          const statsData = await statsRes.json();
-          if (statsData.status === 'success') {
-            const d = statsData.data;
-            totalProds = d.total_products;
-            totalRev = d.total_revenue_pkr;
-          }
-
-          const ordersRes = await fetch(`${API_BASE}/orders`);
-          const ordersData = await ordersRes.json();
-          if (ordersData.status === 'success') {
-            ordersList = ordersData.data;
-          }
-        } catch (err) {
-          console.warn('API server offline (GitHub Pages mode). Fetching orders from LocalStorage.');
-        }
-
-        // Combine API orders with LocalStorage orders
-        const localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
-        try {
-          const ordersRes = await fetch(`${API_BASE}/orders`);
-          const ordersData = await ordersRes.json();
-          if (ordersData.status === 'success') {
-            ordersList = [...ordersData.data, ...localOrders];
-          } else {
+        // Fetch Orders from Firebase Firestore
+        let localOrders = JSON.parse(localStorage.getItem('samrina_orders') || '[]');
+        if (typeof db !== 'undefined' && db !== null) {
+          try {
+            const snapshot = await db.collection('orders').orderBy('timestamp', 'desc').get();
+            if (!snapshot.empty) {
+              const firestoreOrders = [];
+              snapshot.forEach(doc => firestoreOrders.push(doc.data()));
+              ordersList = firestoreOrders;
+            } else {
+              ordersList = localOrders;
+            }
+          } catch (err) {
+            console.error('Firestore fetch error (orders):', err);
             ordersList = localOrders;
           }
-        } catch (err) {
+        } else {
           ordersList = localOrders;
         }
 
         totalRev = ordersList.reduce((sum, o) => sum + (o.total_price_pkr || 0), 0);
 
-        // Fetch & Combine Products (LocalStorage + Fallback)
+        // Fetch Products from Firebase Firestore
         let localProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
         let productsList = [...localProducts];
-        try {
-          const prodRes = await fetch(`${API_BASE}/products`);
-          const prodData = await prodRes.json();
-          if (prodData.status === 'success' && prodData.data.length > 0) {
-            productsList = [...prodData.data, ...localProducts];
+        if (typeof db !== 'undefined' && db !== null) {
+          try {
+            const snapshot = await db.collection('products').get();
+            if (!snapshot.empty) {
+              const firestoreProducts = [];
+              snapshot.forEach(doc => firestoreProducts.push(doc.data()));
+              productsList = [...firestoreProducts, ...localProducts];
+            }
+          } catch (err) {
+            console.error('Firestore fetch error (products):', err);
           }
-        } catch (err) {
-          console.warn('API inventory fetch offline, rendering LocalStorage & Catalogue items.');
         }
-
         totalProds = productsList.length > 0 ? productsList.length : 36;
 
-        // Fetch & Combine Inquiries (LocalStorage + API)
+        // Fetch Inquiries from Firebase Firestore
         let localInquiries = JSON.parse(localStorage.getItem('samrina_inquiries') || '[]');
         let inquiriesList = [...localInquiries];
-        try {
-          const inqRes = await fetch(`${API_BASE}/inquiries`);
-          const inqData = await inqRes.json();
-          if (inqData.status === 'success' && inqData.data.length > 0) {
-            inquiriesList = [...inqData.data, ...localInquiries];
+        if (typeof db !== 'undefined' && db !== null) {
+          try {
+            const snapshot = await db.collection('inquiries').orderBy('timestamp', 'desc').get();
+            if (!snapshot.empty) {
+              const firestoreInquiries = [];
+              snapshot.forEach(doc => firestoreInquiries.push(doc.data()));
+              inquiriesList = firestoreInquiries;
+            } else {
+              inquiriesList = localInquiries;
+            }
+          } catch (err) {
+            console.error('Firestore fetch error (inquiries):', err);
+            inquiriesList = localInquiries;
           }
-        } catch (err) {}
+        } else {
+          inquiriesList = localInquiries;
+        }
 
         // Update Stat Cards
         document.getElementById('statProducts').textContent = totalProds;
@@ -849,6 +876,14 @@
       localProducts = localProducts.filter(p => String(p.id) !== String(productId));
       localStorage.setItem('samrina_products', JSON.stringify(localProducts));
 
+      if (typeof db !== 'undefined' && db !== null) {
+        try {
+          await db.collection('products').doc(String(productId)).delete();
+        } catch (err) {
+          console.error("Firestore delete error:", err);
+        }
+      }
+
       try {
         await fetch(`${API_BASE}/products/${productId}`, { method: 'DELETE' });
       } catch (err) {
@@ -864,6 +899,14 @@
       let localInquiries = JSON.parse(localStorage.getItem('samrina_inquiries') || '[]');
       localInquiries = localInquiries.filter(iq => String(iq.id || iq.inquiry_id) !== String(inquiryId));
       localStorage.setItem('samrina_inquiries', JSON.stringify(localInquiries));
+
+      if (typeof db !== 'undefined' && db !== null) {
+        try {
+          await db.collection('inquiries').doc(String(inquiryId)).delete();
+        } catch (err) {
+          console.error("Firestore delete error:", err);
+        }
+      }
 
       try {
         await fetch(`${API_BASE}/inquiries/${inquiryId}`, { method: 'DELETE' });
@@ -894,6 +937,17 @@
         }
       }
 
+      if (typeof db !== 'undefined' && db !== null) {
+        try {
+          await db.collection('orders').doc(String(orderRef)).update({
+            order_status: newStatus,
+            status: newStatus
+          });
+        } catch (err) {
+          console.error("Firestore update error:", err);
+        }
+      }
+
       try {
         await fetch(`${API_BASE}/orders/${orderRef}/status`, {
           method: 'PUT',
@@ -917,12 +971,21 @@
         fabric: document.getElementById('addFabric').value,
         price_pkr: parseFloat(document.getElementById('addPrice').value),
         image_url: document.getElementById('addImage').value || 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80',
-        stock_status: 'NEW DRESS'
+        stock_status: 'NEW DRESS',
+        timestamp: new Date().getTime()
       };
 
       let localProducts = JSON.parse(localStorage.getItem('samrina_products') || '[]');
       localProducts.unshift(newProduct);
       localStorage.setItem('samrina_products', JSON.stringify(localProducts));
+
+      if (typeof db !== 'undefined' && db !== null) {
+        try {
+          await db.collection('products').doc(String(newProduct.id)).set(newProduct);
+        } catch (err) {
+          console.error("Firestore add product error:", err);
+        }
+      }
 
       try {
         await fetch(`${API_BASE}/products`, {
