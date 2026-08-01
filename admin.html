@@ -415,9 +415,57 @@
         grid-column: span 1 !important;
       }
     }
+    /* Login Overlay */
+    .admin-login-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--primary-dark);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .login-box {
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(15, 56, 44, 0.08);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-box h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--emerald-accent);
+      margin-bottom: 20px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: inherit;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Admin Login Overlay -->
+  <div class="admin-login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <i class="fa-solid fa-crown" style="color: var(--gold-primary); font-size: 2.5rem; margin-bottom: 10px;"></i>
+      <h2>Admin Login</h2>
+      <form id="adminLoginForm">
+        <input type="email" id="adminEmail" class="login-input" placeholder="Admin Email" required>
+        <input type="password" id="adminPassword" class="login-input" placeholder="Password" required>
+        <button type="submit" class="submit-btn" style="width: 100%; justify-content: center;">Login</button>
+      </form>
+      <p id="loginError" style="color: red; margin-top: 15px; font-size: 0.85rem; display: none;">Invalid email or password.</p>
+    </div>
+  </div>
 
   <!-- Top Navigation Header -->
   <header class="mobile-header">
@@ -428,13 +476,16 @@
       <button class="mobile-menu-btn" onclick="toggleSidebarMenu()">
         <i class="fa-solid fa-bars"></i> Menu
       </button>
+      <button onclick="adminLogout()" class="back-to-site-btn" style="padding: 6px 14px; font-size: 0.8rem; background: #c0392b;">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
       <a href="index.html" class="back-to-site-btn" target="_blank" style="padding: 6px 14px; font-size: 0.8rem;">
         <i class="fa-solid fa-store"></i> Storefront
       </a>
     </div>
   </header>
 
-  <div class="app-layout">
+  <div class="app-layout" id="mainAppLayout" style="display: none;">
     <!-- Sidebar Overlay backdrop for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebarMenu()"></div>
 
@@ -622,6 +673,7 @@
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
@@ -637,15 +689,55 @@
     };
 
     let db = null;
+    let auth = null;
     try {
       if (typeof firebase !== 'undefined' && !firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
       if (typeof firebase !== 'undefined') {
         db = firebase.firestore();
+        auth = firebase.auth();
       }
     } catch (e) {
       console.error("Firebase init error in admin:", e);
+    }
+    
+    // Auth Listener
+    if (auth) {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          // Logged in
+          document.getElementById('loginOverlay').style.display = 'none';
+          document.getElementById('mainAppLayout').style.display = 'flex';
+          fetchAdminData();
+        } else {
+          // Not logged in
+          document.getElementById('loginOverlay').style.display = 'flex';
+          document.getElementById('mainAppLayout').style.display = 'none';
+        }
+      });
+    }
+
+    document.getElementById('adminLoginForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const pass = document.getElementById('adminPassword').value;
+      if (auth) {
+        auth.signInWithEmailAndPassword(email, pass)
+          .then(() => {
+            document.getElementById('loginError').style.display = 'none';
+          })
+          .catch(err => {
+            document.getElementById('loginError').style.display = 'block';
+            document.getElementById('loginError').textContent = err.message;
+          });
+      }
+    });
+
+    function adminLogout() {
+      if (auth) {
+        auth.signOut();
+      }
     }
     // ------------------------------
     
@@ -1016,7 +1108,12 @@
     }
 
     // Initial Fetch & Default View
-    fetchAdminData();
+    if (!auth) {
+      // Fallback if Firebase fails to load
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainAppLayout').style.display = 'flex';
+      fetchAdminData();
+    }
   </script>
 </body>
 </html>
